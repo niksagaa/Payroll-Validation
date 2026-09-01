@@ -10,41 +10,38 @@ from openpyxl.utils import get_column_letter
 st.set_page_config(
     page_title="Payroll Hours Validator",
     page_icon="🌿",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- STRICT MOCKUP MATCHING CSS ---
+# --- REVISED UI CSS WITH CONTRAST & LAYOUT FIXES ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-    /* Hide Streamlit Chrome */
     #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
         visibility: hidden !important;
         display: none !important;
     }
 
-    /* Outer Background */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
         background-color: #E2ECE6 !important;
         color: #12231C !important;
     }
 
-    /* White Center Card Container */
+    /* Outer Container: Widened and High Contrast Header */
     .main .block-container {
-        padding: 2.5rem 3rem !important;
-        max-width: 680px !important;
-        background-color: #F8FAF8 !important;
-        border: 1px solid #D5E2DA !important;
-        border-radius: 18px !important;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04) !important;
+        padding: 2.5rem 3.5rem !important;
+        max-width: 900px !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid #C2D3C9 !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
         margin-top: 2rem !important;
         margin-bottom: 2rem !important;
     }
 
-    /* Header Styling */
     .zen-header {
         text-align: center;
         margin-bottom: 2rem;
@@ -52,9 +49,9 @@ st.markdown("""
 
     .zen-badge {
         display: inline-block;
-        background-color: #D3E4DB;
-        color: #234735;
-        font-size: 0.72rem;
+        background-color: #173124;
+        color: #FFFFFF;
+        font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.8px;
         padding: 6px 16px;
@@ -63,179 +60,151 @@ st.markdown("""
     }
 
     .zen-title {
-        font-size: 2.1rem;
+        font-size: 2.2rem;
         font-weight: 700;
-        color: #12231C;
+        color: #0F1C17;
         letter-spacing: -0.5px;
         margin-bottom: 0.4rem;
     }
 
     .zen-subtitle {
-        font-size: 0.88rem;
-        color: #5A6E65;
+        font-size: 0.95rem;
+        color: #2E453A;
+        font-weight: 500;
     }
 
-    /* Section Titles */
+    /* Accessible High-Contrast Section Titles & Labels */
     .section-title {
-        font-size: 0.95rem;
+        font-size: 1.05rem;
         font-weight: 700;
-        color: #12231C;
-        margin-top: 1.5rem;
+        color: #0F1C17;
+        margin-top: 1.8rem;
         margin-bottom: 0.8rem;
+        border-bottom: 2px solid #E2ECE6;
+        padding-bottom: 6px;
+    }
+
+    [data-testid="stMarkdownContainer"] p {
+        color: #0F1C17 !important;
+        font-weight: 600 !important;
     }
 
     /* File Uploader styling */
-    [data-testid="stFileUploader"] {
-        margin-bottom: 0rem;
-    }
-
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #FAFCFA !important;
-        border: 1px dashed #C2D3C9 !important;
+        background-color: #F4F8F5 !important;
+        border: 2px dashed #3D6B52 !important;
         border-radius: 12px !important;
-        padding: 0.8rem !important;
+        padding: 1.2rem !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #2E5A44 !important;
-        background-color: #F0F5F2 !important;
+        border-color: #173124 !important;
+        background-color: #E8F0EC !important;
     }
 
     [data-testid="stFileUploaderDropzone"] div,
     [data-testid="stFileUploaderDropzone"] span,
     [data-testid="stFileUploaderDropzone"] small,
     [data-testid="stFileUploaderDropzone"] p {
-        color: #4A6356 !important;
-        font-size: 0.8rem !important;
+        color: #173124 !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
     }
 
-    [data-testid="stFileUploaderDropzone"] button {
-        background-color: #E2ECE6 !important;
-        color: #2E5A44 !important;
-        border: 1px solid #C2D3C9 !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        font-size: 0.8rem !important;
-    }
-
-    /* Status Box below file uploader */
+    /* File Status Indicator */
     .file-status-box {
-        background-color: #EEF3F0;
-        border-radius: 10px;
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        color: #2E5A44;
+        background-color: #E8F0EC;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #173124;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 6px;
-        border: 1px solid #D5E2DA;
+        margin-top: 8px;
+        border: 1px solid #3D6B52;
     }
 
-    /* Decryption Password Field - Clean White Styling (No Black Background) */
-    .field-label {
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #12231C;
-        margin-bottom: 0.3rem;
-        display: block;
-    }
-
+    /* Password Input Fixes */
     div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
-        border: 1.5px solid #C2D3C9 !important;
-        border-radius: 12px !important;
+        border: 1.5px solid #3D6B52 !important;
+        border-radius: 8px !important;
         height: 2.8rem !important;
-        box-shadow: none !important;
     }
 
     div[data-baseweb="input"]:focus-within {
-        border-color: #2E5A44 !important;
+        border-color: #173124 !important;
     }
 
     div[data-baseweb="input"] input {
-        color: #12231C !important;
-        background-color: transparent !important;
+        color: #0F1C17 !important;
+        font-weight: 500 !important;
     }
 
-    /* Password Eye Icon color fix */
-    div[data-baseweb="input"] button {
-        background-color: transparent !important;
-        color: #5A6E65 !important;
-    }
-
-    /* Progress Pipeline Steps */
+    /* Pipeline Status Container */
     .pipeline-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 1.8rem;
+        margin-top: 1.5rem;
         margin-bottom: 1rem;
-        padding: 0 10px;
+        padding: 12px;
+        background-color: #F4F8F5;
+        border-radius: 8px;
+        border: 1px solid #C2D3C9;
     }
 
     .pipeline-step {
         text-align: center;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #4A6356;
-        position: relative;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #173124;
         flex: 1;
     }
 
     .pipeline-icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         margin-bottom: 4px;
         display: block;
     }
 
-    /* Progress Bar */
-    .stProgress > div > div > div > div {
-        background-color: #2E5A44 !important;
-    }
-
-    /* Bottom Action Buttons */
-    .action-row {
-        display: flex;
-        gap: 10px;
-        margin-top: 1.5rem;
-    }
-
+    /* Buttons Alignment */
     div.stButton > button {
-        border-radius: 10px !important;
-        height: 2.8rem !important;
+        border-radius: 8px !important;
+        height: 3rem !important;
         font-weight: 700 !important;
-        font-size: 0.9rem !important;
-        border: none !important;
+        font-size: 0.95rem !important;
         transition: all 0.2s ease !important;
     }
 
-    /* Primary Submit Button */
     div.stButton > button[kind="primary"] {
-        background: #234735 !important;
+        background: #173124 !important;
         color: #FFFFFF !important;
+        border: none !important;
     }
 
     div.stButton > button[kind="primary"]:hover {
-        background: #173124 !important;
+        background: #0F1C17 !important;
     }
 
-    /* Secondary Clear Button */
     div.stButton > button[kind="secondary"] {
-        background: #E2ECE6 !important;
-        color: #4A6356 !important;
+        background: #FFFFFF !important;
+        color: #A30000 !important;
+        border: 1.5px solid #A30000 !important;
     }
 
     div.stButton > button[kind="secondary"]:hover {
-        background: #D3E4DB !important;
+        background: #FDF2F2 !important;
     }
 
-    /* Footer text */
     .footer-text {
         text-align: center;
-        font-size: 0.72rem;
-        color: #8A9E94;
-        margin-top: 1.8rem;
+        font-size: 0.78rem;
+        color: #5A6E65;
+        font-weight: 600;
+        margin-top: 2rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -285,7 +254,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
         office_file.load_key(password=password)
         office_file.decrypt(decrypted_stream)
     except Exception:
-        raise ValueError("Hindi ma-decrypt ang file. Pakisuri kung tama ang password.")
+        raise ValueError("Decryption failed. Please verify the provided password.")
 
     decrypted_stream.seek(0)
     engines = ["openpyxl", "pyxlsb", "xlrd"]
@@ -300,7 +269,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Hindi mabuksan ang Excel file structure.")
+        raise ValueError("Unable to read Excel structure. Unrecognized or corrupt format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -447,62 +416,67 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# Function to handle state clearing
+def reset_form():
+    st.session_state["uploader_key_1"] = st.session_state.get("uploader_key_1", 0) + 1
+    st.session_state["uploader_key_2"] = st.session_state.get("uploader_key_2", 0) + 1
+    st.session_state["pwd_value"] = ""
+
+if "uploader_key_1" not in st.session_state:
+    st.session_state["uploader_key_1"] = 0
+if "uploader_key_2" not in st.session_state:
+    st.session_state["uploader_key_2"] = 0
+if "pwd_value" not in st.session_state:
+    st.session_state["pwd_value"] = ""
+
 # --- 1. SELECT SOURCE FILES ---
 st.markdown('<div class="section-title">1. Select Source Files</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
 with col1:
+    st.markdown("**Input File Ledger**")
     main_file = st.file_uploader(
-        "Input File Ledger",
+        "Upload Input File Ledger",
         type=["xlsx", "xlsb", "xls"],
-        key="main_file_key"
+        key=f"main_file_{st.session_state['uploader_key_1']}",
+        label_visibility="collapsed"
     )
     if main_file:
         st.markdown(f"""
             <div class="file-status-box">
                 <span>📄 {main_file.name}</span>
-                <span>✓</span>
+                <span>✓ Attached</span>
             </div>
         """, unsafe_allow_html=True)
 
 with col2:
+    st.markdown("**Masterfile**")
     dr2_file = st.file_uploader(
-        "Masterfile",
+        "Upload Masterfile",
         type=["xlsx", "xlsb", "xls"],
-        key="dr2_file_key"
+        key=f"dr2_file_{st.session_state['uploader_key_2']}",
+        label_visibility="collapsed"
     )
     if dr2_file:
         st.markdown(f"""
             <div class="file-status-box">
                 <span>📄 {dr2_file.name}</span>
-                <span>✓</span>
+                <span>✓ Attached</span>
             </div>
         """, unsafe_allow_html=True)
 
 # --- 2. PROVIDE ACCESS AND SECURE ---
 st.markdown('<div class="section-title">2. Provide Access and Secure</div>', unsafe_allow_html=True)
 
-st.markdown('<span class="field-label">Decryption Password</span>', unsafe_allow_html=True)
+st.markdown("**Decryption Password**")
 password = st.text_input(
     "Decryption Password",
-    value="tp_paseo",
+    value=st.session_state["pwd_value"],
     type="password",
+    placeholder="Enter password for file decryption...",
     label_visibility="collapsed"
 )
-
-# --- PIPELINE STATUS ICONS ---
-st.markdown("""
-    <div class="pipeline-container">
-        <div class="pipeline-step"><span class="pipeline-icon">📄</span>File Parsing</div>
-        <div class="pipeline-step"><span class="pipeline-icon">📑</span>Rule Application</div>
-        <div class="pipeline-step"><span class="pipeline-icon">⚖️</span>Anomaly Detection</div>
-        <div class="pipeline-step"><span class="pipeline-icon">🛡️</span>Decryption Check</div>
-    </div>
-""", unsafe_allow_html=True)
-
-# Progress Bar
-progress_bar = st.progress(0)
 
 # --- ACTIONS & BUTTONS ---
 btn_col1, btn_col2 = st.columns([3, 1])
@@ -511,36 +485,45 @@ with btn_col1:
     start_btn = st.button("Start Validation Engine 🌿", type="primary", use_container_width=True)
 
 with btn_col2:
-    clear_btn = st.button("Clear Form", type="secondary", use_container_width=True)
+    clear_btn = st.button("Clear Form", type="secondary", use_container_width=True, on_click=reset_form)
 
-if clear_btn:
-    st.rerun()
-
+# Validation logic & runtime rendering of steps
 if start_btn:
     if not main_file or not dr2_file:
-        st.warning("Paki-upload ang Input File at Masterfile para magsimula.")
+        st.error("Please upload both the Input File Ledger and Masterfile before proceeding.")
     elif not password:
-        st.warning("Pakilagay ang decryption password.")
+        st.error("Please enter the decryption password.")
     else:
-        progress_bar.progress(35)
-        with st.spinner("Reconciling payroll records..."):
-            try:
-                progress_bar.progress(70)
-                result_excel = process_validation(main_file, dr2_file, password)
-                progress_bar.progress(100)
-                
-                st.success("Validation Successful! Ready for download.")
-                
-                st.download_button(
-                    label="Download Validated Report (.xlsx)",
-                    data=result_excel,
-                    file_name="Hourly_Regular_Hours_Validated.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
-            except Exception as e:
-                progress_bar.progress(0)
-                st.error(f"Error: {str(e)}")
+        # Dynamic Pipeline Step Container shown only during processing
+        pipeline_placeholder = st.empty()
+        pipeline_placeholder.markdown("""
+            <div class="pipeline-container">
+                <div class="pipeline-step"><span class="pipeline-icon">📄</span>File Parsing</div>
+                <div class="pipeline-step"><span class="pipeline-icon">📑</span>Rule Application</div>
+                <div class="pipeline-step"><span class="pipeline-icon">⚖️</span>Anomaly Detection</div>
+                <div class="pipeline-step"><span class="pipeline-icon">🛡️</span>Decryption Check</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        progress_bar = st.progress(0)
+        
+        try:
+            progress_bar.progress(30)
+            result_excel = process_validation(main_file, dr2_file, password)
+            progress_bar.progress(100)
+            
+            st.success("Validation completed successfully.")
+            
+            st.download_button(
+                label="📥 Download Validated Report (.xlsx)",
+                data=result_excel,
+                file_name="Hourly_Regular_Hours_Validated.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+        except Exception as e:
+            progress_bar.progress(0)
+            st.error(f"Execution Error: {str(e)}")
 
 # --- FOOTER ---
 st.markdown("""
