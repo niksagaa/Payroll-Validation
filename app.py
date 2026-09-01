@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED CLEAN CSS FOR INPUTS & CARD ---
+# --- CORRECTED CSS FOR WHITE INPUT BOX & NO DUPLICATE ICONS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -154,41 +154,43 @@ st.markdown("""
         border: 1px solid #B4DEC9;
     }
 
-    /* ROBUST FIX FOR TEXT INPUT & PASSWORD FIELD BACKGROUND */
-    .stTextInput div[data-baseweb="input"] {
+    /* CLEAN WHITE BACKGROUND FOR TEXT INPUT & PASSWORD */
+    div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
         background: #FFFFFF !important;
         border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
     }
 
-    .stTextInput div[data-baseweb="input"]:focus-within {
+    div[data-baseweb="input"]:focus-within {
         border-color: #0F766E !important;
         box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15) !important;
     }
 
-    .stTextInput input {
+    div[data-baseweb="input"] input {
         color: #0F382C !important;
         font-weight: 600 !important;
         background-color: transparent !important;
         -webkit-text-fill-color: #0F382C !important;
     }
 
-    /* Style password visibility icons properly */
-    .stTextInput div[data-baseweb="input"] button {
+    /* FIX FOR DUPLICATE / OVERLAPPING ICONS */
+    div[data-baseweb="input"] button {
         background: transparent !important;
         border: none !important;
     }
 
-    .stTextInput div[data-baseweb="input"] svg {
+    /* Target only the primary password visibility icon and color it correctly */
+    div[data-baseweb="input"] svg {
         fill: #0F766E !important;
         color: #0F766E !important;
     }
 
-    /* HIDE "PRESS ENTER TO APPLY" INSTRUCTION TEXT COMPLETELY */
+    /* HIDE EXTRA/DUPLICATE ICON & INSTRUCTION TEXT COMPLETELY */
     [data-testid="stInputInstructions"], 
     div[data-testid="stInputInstructions"], 
-    small[data-testid="stInputInstructions"] {
+    small[data-testid="stInputInstructions"],
+    div[data-baseweb="input"] > div:last-child > div:not(:first-child) {
         display: none !important;
         visibility: hidden !important;
         height: 0px !important;
