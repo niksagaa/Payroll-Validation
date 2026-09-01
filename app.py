@@ -6,31 +6,36 @@ import streamlit as st
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-# Set layout with a clean title and icon
-st.set_page_config(page_title="Payroll Validator", page_icon="⚡", layout="centered")
+# Page configuration
+st.set_page_config(page_title="Payroll Validator", page_icon="📋", layout="centered")
 
-# Modern, clean CSS that adapts to both Dark Mode and Light Mode
+# Modern, Non-Tech Friendly CSS Styling
 st.markdown("""
     <style>
-    /* Clean typography and padding adjustment */
+    /* Clean layout spacing */
     .main .block-container {
         padding-top: 2rem;
-        padding-bottom: 3rem;
-        max-width: 800px;
+        padding-bottom: 2rem;
+        max-width: 750px;
     }
     
-    /* Sleek card-like styling for drag-and-drop file upload containers */
-    [data-testid="stFileUploader"] {
-        border-radius: 8px;
-        padding: 8px;
+    /* Step card banners */
+    .step-header {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        opacity: 0.85;
     }
-    
-    /* Sleek, full-width primary button styling */
+
+    /* Primary button enhancement */
     div.stButton > button:first-child {
         width: 100%;
-        border-radius: 6px;
-        height: 3em;
-        font-weight: 600;
+        border-radius: 8px;
+        height: 3.2em;
+        font-weight: 700;
+        font-size: 1.05rem;
         letter-spacing: 0.5px;
     }
     </style>
@@ -47,7 +52,7 @@ COLUMN_MAPPINGS = [
 ]
 
 def load_encrypted_excel(file_bytes, password, sheet_identifier):
-    """Decrypts and loads password-protected Excel files into a DataFrame."""
+    """Decrypts and loads Excel files safely in-memory."""
     decrypted_stream = io.BytesIO()
     office_file = msoffcrypto.OfficeFile(file_bytes)
     office_file.load_key(password=password)
@@ -66,7 +71,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Failed to open encrypted file. Check format or password.")
+        raise ValueError("Cannot open the Excel file. Please check if the file or password is correct.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -80,7 +85,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def find_matching_column(df_columns, target_name):
-    """Finds matching column names accounting for minor variations."""
+    """Flexible column search."""
     cols_clean = {str(c).strip().lower(): c for c in df_columns}
     target_clean = target_name.strip().lower()
 
@@ -99,7 +104,7 @@ def find_matching_column(df_columns, target_name):
     return None
 
 def clean_id(val):
-    """Normalizes employee ID format."""
+    """Cleans up Employee IDs for lookup."""
     if pd.isna(val):
         return ""
     val_str = str(val).strip()
@@ -108,7 +113,7 @@ def clean_id(val):
     return val_str.replace(" ", "")
 
 def process_validation(main_bytes, dr2_bytes, pwd):
-    """Performs validation between Input File and Masterfile."""
+    """Core validation processing."""
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
@@ -233,38 +238,60 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     output_stream.seek(0)
     return output_stream
 
-# --- Minimalist Header ---
-st.title("Payroll Validator")
-st.caption("Upload source files to generate validation report.")
+# --- HEADER SECTION ---
+st.title("Payroll Hourly Validator")
+st.markdown("Automated cross-checking tool for payroll files. Follow the steps below to validate.")
 
 st.divider()
 
-# --- Inputs Section ---
+# --- STEP 1: UPLOAD FILES ---
+st.markdown("<p class='step-header'>STEP 1: Attach Files</p>", unsafe_allow_html=True)
+
 col1, col2 = st.columns(2)
 with col1:
-    main_file = st.file_uploader("UPLOAD INPUT FILE", type=["xlsx", "xlsb", "xls"])
+    main_file = st.file_uploader(
+        "UPLOAD INPUT FILE",
+        type=["xlsx", "xlsb", "xls"],
+        help="Select or drag your primary Input File here."
+    )
 with col2:
-    dr2_file = st.file_uploader("UPLOAD MASTERFILE", type=["xlsx", "xlsb", "xls"])
-
-password = st.text_input("File Password", value="tp_paseo", type="password")
+    dr2_file = st.file_uploader(
+        "UPLOAD MASTERFILE",
+        type=["xlsx", "xlsb", "xls"],
+        help="Select or drag your Masterfile here."
+    )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- Action Button ---
-if st.button("RUN VALIDATION", type="primary"):
+# --- STEP 2: SECURITY & CONFIG ---
+st.markdown("<p class='step-header'>STEP 2: Security Key</p>", unsafe_allow_html=True)
+password = st.text_input(
+    "File Password",
+    value="tp_paseo",
+    type="password",
+    help="Enter password if your Excel files are encrypted."
+)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# --- STEP 3: ACTION ---
+st.markdown("<p class='step-header'>STEP 3: Process & Download</p>", unsafe_allow_html=True)
+
+if st.button("START VALIDATION ⚡", type="primary"):
     if not main_file or not dr2_file:
-        st.warning("Please upload both the Input File and Masterfile.")
+        st.error("⚠️ Missing File: Please attach both the Input File and Masterfile to proceed.")
     else:
-        with st.spinner("Processing..."):
+        with st.spinner("Validating records... Please wait..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
-                st.success("Validation complete.")
+                st.success("✅ Validation Successful! Your file is ready for download.")
+                
                 st.download_button(
-                    label="Download Report",
+                    label="📥 DOWNLOAD VALIDATED REPORT (.XLSX)",
                     data=result_excel,
                     file_name="Hourly_Regular_Hours_Validated.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Error: {str(e)}")
+                st.error(f"❌ Processing Error: {str(e)}")
