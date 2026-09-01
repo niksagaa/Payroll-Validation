@@ -9,185 +9,206 @@ from openpyxl.utils import get_column_letter
 # Page Config
 st.set_page_config(
     page_title="Payroll Hours Validator",
-    page_icon="📋",
+    page_icon="🌿",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Minimalist Ultra-Clean CSS
+# Deep Zen / Clean Nature CSS Overrides
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-    /* Hide Streamlit Native Overlays */
-    #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"] {
-        visibility: hidden !important;
-        display: none !important;
-    }
+    /* --- HIDE STREAMLIT CHROME (HEADER, FOOTER, TOOLBARS) --- */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden !important;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    [data-testid="stDecoration"] {display: none;}
+    [data-testid="stStatusWidget"] {display: none;}
+    .viewerBadge_container__163Vn {display: none !important;}
 
-    /* Global Canvas */
+    /* Global Canvas Reset */
     html, body, [class*="css"], .stApp {
-        font-family: 'Inter', -apple-system, sans-serif !important;
-        background-color: #F8FAFC !important;
-        color: #0F172A !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+        background: #F4F6F3 !important;
+        color: #1A2E26 !important;
     }
 
     .main .block-container {
-        padding-top: 4rem !important;
-        padding-bottom: 4rem !important;
-        max-width: 540px;
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 600px;
     }
 
-    /* Floating Card Container Styling */
-    .app-header {
+    /* Header Styling */
+    .zen-header {
         text-align: center;
         margin-bottom: 2rem;
     }
 
-    .app-title {
-        font-size: 1.75rem;
+    .zen-badge {
+        display: inline-block;
+        background-color: #E2ECE6;
+        color: #2E5A44;
+        font-size: 0.75rem;
         font-weight: 700;
-        color: #0F172A;
-        letter-spacing: -0.025em;
-        margin-bottom: 0.35rem;
+        letter-spacing: 0.8px;
+        padding: 5px 16px;
+        border-radius: 20px;
+        margin-bottom: 0.8rem;
     }
 
-    .app-subtitle {
-        font-size: 0.875rem;
-        color: #64748B;
-        line-height: 1.4;
+    .zen-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #12231C;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.4rem;
     }
 
-    /* Form Labels */
+    .zen-subtitle {
+        font-size: 0.92rem;
+        color: #5A6E65;
+        line-height: 1.5;
+    }
+
+    /* Section Field Labels */
     .field-label {
-        font-size: 0.825rem;
-        font-weight: 600;
-        color: #334155;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #1E3E2F;
         margin-bottom: 0.4rem;
         display: block;
     }
 
-    /* File Uploader Clean Styling */
+    /* Target File Uploader Dropzone */
     [data-testid="stFileUploader"] {
-        margin-bottom: 1.25rem;
+        background-color: transparent !important;
+        margin-bottom: 1rem;
     }
 
     [data-testid="stFileUploaderDropzone"] {
         background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 12px !important;
-        padding: 1rem !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+        border: 1.5px dashed #C2D3C9 !important;
+        border-radius: 16px !important;
+        padding: 1.2rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.25s ease !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #94A3B8 !important;
+        border-color: #2E5A44 !important;
+        background-color: #F8FAF9 !important;
     }
 
     [data-testid="stFileUploaderDropzone"] span, 
     [data-testid="stFileUploaderDropzone"] small,
     [data-testid="stFileUploaderDropzone"] p {
-        color: #64748B !important;
+        color: #4A6356 !important;
     }
 
     [data-testid="stFileUploaderDropzone"] button {
-        background-color: #F1F5F9 !important;
-        color: #0F172A !important;
-        border: 1px solid #E2E8F0 !important;
+        background-color: #E8F0EC !important;
+        color: #2E5A44 !important;
+        border: none !important;
         border-radius: 8px !important;
-        font-weight: 500 !important;
-        font-size: 0.85rem !important;
+        font-weight: 600 !important;
     }
 
-    /* Password Field Light Theme Fix */
+    /* Force Light Theme on Password Input Elements */
     div[data-baseweb="input"],
     div[data-baseweb="input"] > div,
     input[type="password"],
     input[type="text"] {
         background-color: #FFFFFF !important;
-        color: #0F172A !important;
-        border-radius: 12px !important;
+        color: #1A2E26 !important;
+        border-radius: 14px !important;
     }
 
     div[data-baseweb="input"] {
-        border: 1px solid #E2E8F0 !important;
-        height: 2.85rem !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        border: 1.5px solid #C2D3C9 !important;
+        height: 3.2rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
     }
 
     div[data-baseweb="input"]:focus-within {
-        border-color: #0284C7 !important;
-        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+        border-color: #2E5A44 !important;
+        box-shadow: 0 0 0 3px rgba(46, 90, 68, 0.15) !important;
     }
 
-    /* Primary Action Button Clean Full-Width */
+    /* Force Full-Width Button Container & Light Style */
     [data-testid="stButton"],
     div.stButton {
         width: 100% !important;
-        margin-top: 1.25rem;
+        margin-top: 1rem;
     }
 
     [data-testid="stButton"] > button,
     div.stButton > button {
         width: 100% !important;
-        border-radius: 12px !important;
-        height: 3.1rem !important;
-        font-weight: 600 !important;
-        font-size: 0.925rem !important;
-        background-color: #0F172A !important;
+        border-radius: 14px !important;
+        height: 3.6rem !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        background: #2E5A44 !important;
         border: none !important;
         color: #FFFFFF !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
-        transition: background-color 0.15s ease !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
     [data-testid="stButton"] > button:hover,
     div.stButton > button:hover {
-        background-color: #1E293B !important;
+        background: #234735 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 24px rgba(46, 90, 68, 0.35) !important;
     }
 
-    /* Download Button */
+    /* Download Button Styling */
     [data-testid="stDownloadButton"],
     div[data-testid="stDownloadButton"] {
         width: 100% !important;
     }
 
     [data-testid="stDownloadButton"] > button {
-        background-color: #0284C7 !important;
+        background: #2E5A44 !important;
         color: #FFFFFF !important;
-        font-weight: 600 !important;
-        height: 3.1rem !important;
-        border-radius: 12px !important;
+        font-weight: 700 !important;
+        height: 3.6rem !important;
+        border-radius: 14px !important;
         border: none !important;
         width: 100% !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
     [data-testid="stDownloadButton"] > button:hover {
-        background-color: #0369A1 !important;
+        background: #234735 !important;
+        transform: translateY(-2px) !important;
     }
 
-    /* Success Card Banner */
+    /* Success Result Card */
     .success-card {
-        background-color: #F0FDF4;
-        border: 1px solid #BBF7D0;
-        border-radius: 12px;
-        padding: 1rem;
+        background-color: #FFFFFF;
+        border: 1.5px solid #2E5A44;
+        border-radius: 16px;
+        padding: 1.2rem;
         text-align: center;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.2rem;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.08);
     }
 
     .success-title {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: #166534;
-        margin-bottom: 0.15rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: #2E5A44;
+        margin-bottom: 0.2rem;
     }
 
     .success-desc {
-        font-size: 0.825rem;
-        color: #15803D;
+        font-size: 0.85rem;
+        color: #5A6E65;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -221,7 +242,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Cannot open file. Please check password or file format.")
+        raise ValueError("Hindi mabuksan ang file. Pakisuri ang password o file format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -387,13 +408,14 @@ def process_validation(main_bytes, dr2_bytes, pwd):
 
 # --- HEADER SECTION ---
 st.markdown("""
-    <div class="app-header">
-        <div class="app-title">Payroll Hours Validator</div>
-        <div class="app-subtitle">Cross-reference payroll ledgers against masterfile records.</div>
+    <div class="zen-header">
+        <div class="zen-badge">🌿 AUTOMATED VALIDATION WORKSPACE</div>
+        <div class="zen-title">Payroll Hours Validator</div>
+        <div class="zen-subtitle">Seamlessly reconcile input ledgers with your masterfile in seconds.</div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- INPUT FIELDS ---
+# --- FORM INPUTS ---
 st.markdown('<span class="field-label">1. Input File</span>', unsafe_allow_html=True)
 main_file = st.file_uploader(
     "1. Input File",
@@ -419,27 +441,27 @@ password = st.text_input(
 )
 
 # --- ACTION & OUTPUT ---
-if st.button("Run Validation", type="primary"):
+if st.button("Start Validation Engine 🌿", type="primary"):
     if not main_file or not dr2_file:
-        st.warning("Please upload both the Input File and Masterfile.")
+        st.warning("Pakiupload ang Input File at Masterfile para magsimula.")
     else:
-        with st.spinner("Processing files..."):
+        with st.spinner("Reconciling payroll records..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
                 
                 st.markdown("""
                     <div class="success-card">
-                        <div class="success-title">Validation Complete</div>
-                        <div class="success-desc">The report has been generated successfully.</div>
+                        <div class="success-title">Validation Successful</div>
+                        <div class="success-desc">All calculations match. Your report is formatted and ready for download.</div>
                     </div>
                 """, unsafe_allow_html=True)
                 
                 st.download_button(
-                    label="Download Validated File (.xlsx)",
+                    label="Download Validated Report (.xlsx)",
                     data=result_excel,
                     file_name="Hourly_Regular_Hours_Validated.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Error processing files: {str(e)}")
+                st.error(f"Error: {str(e)}")
