@@ -8,156 +8,163 @@ from openpyxl.utils import get_column_letter
 
 # Page Config
 st.set_page_config(
-    page_title="Payroll Hourly Validator",
-    page_icon="📋",
+    page_title="Payroll Validator",
+    page_icon="🌿",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Light Widget Card CSS (Exact Match to Reference UI)
+# Custom Nature & Zen UI Aesthetics
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-    /* Global Light Canvas Overrides */
+    /* Global Canvas Reset */
     html, body, [class*="css"], .stApp {
-        font-family: 'Inter', -apple-system, sans-serif !important;
-        background-color: #F8FAFC !important;
-        color: #1E293B !important;
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+        background: linear-gradient(180deg, #FBFBF9 0%, #F4F5F0 100%) !important;
+        color: #2D3748 !important;
     }
 
     .main .block-container {
-        padding-top: 2.5rem;
-        padding-bottom: 3rem;
-        max-width: 680px;
+        padding-top: 3rem;
+        padding-bottom: 4rem;
+        max-width: 640px;
     }
 
-    /* Main Container Card (Floating White Box with Soft Shadow) */
-    div.element-container {
-        font-family: 'Inter', sans-serif !important;
-    }
-
-    /* Form Container Setup */
-    .widget-card {
-        background: #FFFFFF;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
-        border: 1px solid #F1F5F9;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Header Typography */
-    .card-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #0F172A;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.2rem;
-    }
-
-    .card-subtitle {
-        font-size: 0.9rem;
-        color: #64748B;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Section Labels */
-    .input-label {
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #475569;
-        margin-bottom: 0.4rem;
-        display: block;
-    }
-
-    /* File Upload Area Customization */
-    [data-testid="stFileUploader"] {
-        background-color: #FFFFFF !important;
-        border: 1.5px solid #E2E8F0 !important;
-        border-radius: 12px !important;
-        padding: 8px !important;
-        transition: all 0.2s ease;
-    }
-
-    [data-testid="stFileUploader"]:hover {
-        border-color: #16A34A !important;
-        background-color: #F8FAF9 !important;
-    }
-
-    /* Password Text Input Override */
-    div[data-baseweb="input"] {
-        background-color: #FFFFFF !important;
-        border: 1.5px solid #E2E8F0 !important;
-        border-radius: 12px !important;
-        color: #0F172A !important;
-        height: 2.8rem;
-    }
-
-    div[data-baseweb="input"]:focus-within {
-        border-color: #16A34A !important;
-        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
-    }
-
-    /* Green Primary Action Button (Matching Reference Image) */
-    div.stButton > button:first-child {
-        width: 100%;
-        border-radius: 12px;
-        height: 3.4rem;
-        font-weight: 600;
-        font-size: 1rem;
-        background-color: #16A34A !important;
-        border: none !important;
-        color: #FFFFFF !important;
-        transition: all 0.2s ease;
-        margin-top: 0.5rem;
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
-    }
-
-    div.stButton > button:first-child:hover {
-        background-color: #15803D !important;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
-    }
-
-    /* Download Button Specific Green Pill */
-    div[data-testid="stDownloadButton"] > button {
-        background-color: #16A34A !important;
-        color: #FFFFFF !important;
-        font-weight: 600 !important;
-        height: 3.4rem !important;
-        border-radius: 12px !important;
-        border: none !important;
-        width: 100% !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
-    }
-
-    div[data-testid="stDownloadButton"] > button:hover {
-        background-color: #15803D !important;
-        transform: translateY(-1px) !important;
-    }
-
-    /* Result Metric Boxes (Soft Colored Badges) */
-    .metric-card-green {
-        background-color: #F0FDF4;
-        border: 1px solid #DCFCE7;
-        border-radius: 12px;
-        padding: 1rem;
+    /* Header Section */
+    .zen-header {
         text-align: center;
+        margin-bottom: 2.2rem;
+    }
+
+    .zen-badge {
+        display: inline-block;
+        background-color: #E8F0EC;
+        color: #2E5A44;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 4px 14px;
+        border-radius: 20px;
         margin-bottom: 0.8rem;
     }
 
-    .metric-value-green {
-        font-size: 1.4rem;
+    .zen-title {
+        font-size: 1.85rem;
         font-weight: 700;
-        color: #16A34A;
+        color: #1A2E26;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.4rem;
     }
 
-    .metric-label-green {
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: #15803D;
+    .zen-subtitle {
+        font-size: 0.92rem;
+        color: #64748B;
+        line-height: 1.5;
+    }
+
+    /* Sleek Native Card Container */
+    div.element-container {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+
+    /* Clean Inputs Alignment */
+    .stMarkdown p {
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        margin-bottom: 0.3rem !important;
+    }
+
+    /* Streamlit Uploader Modern Clean Styling */
+    [data-testid="stFileUploader"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 14px !important;
+        padding: 10px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.25s ease !important;
+    }
+
+    [data-testid="stFileUploader"]:hover {
+        border-color: #2E5A44 !important;
+        box-shadow: 0 4px 12px rgba(46, 90, 68, 0.08) !important;
+    }
+
+    /* Input Field Customization */
+    div[data-baseweb="input"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 12px !important;
+        color: #1A2E26 !important;
+        height: 2.8rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    div[data-baseweb="input"]:focus-within {
+        border-color: #2E5A44 !important;
+        box-shadow: 0 0 0 3px rgba(46, 90, 68, 0.12) !important;
+    }
+
+    /* Nature Green Primary Button */
+    div.stButton > button:first-child {
+        width: 100%;
+        border-radius: 14px;
+        height: 3.4rem;
+        font-weight: 600;
+        font-size: 0.98rem;
+        background: linear-gradient(135deg, #2E5A44 0%, #1E3E2F 100%) !important;
+        border: none !important;
+        color: #FFFFFF !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        margin-top: 0.8rem;
+        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.2);
+    }
+
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(46, 90, 68, 0.3);
+    }
+
+    /* Download Button Specific Styling */
+    div[data-testid="stDownloadButton"] > button {
+        background: linear-gradient(135deg, #2E5A44 0%, #1E3E2F 100%) !important;
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
+        height: 3.4rem !important;
+        border-radius: 14px !important;
+        border: none !important;
+        width: 100% !important;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.2) !important;
+    }
+
+    div[data-testid="stDownloadButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 22px rgba(46, 90, 68, 0.3) !important;
+    }
+
+    /* Status Banner */
+    .success-card {
+        background-color: #E8F0EC;
+        border: 1px solid #C2D8CD;
+        border-radius: 14px;
+        padding: 1.2rem;
+        text-align: center;
+        margin-bottom: 1.2rem;
+        color: #1E3E2F;
+    }
+
+    .success-title {
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .success-desc {
+        font-size: 0.85rem;
+        color: #4A6356;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -173,7 +180,6 @@ COLUMN_MAPPINGS = [
 ]
 
 def load_encrypted_excel(file_bytes, password, sheet_identifier):
-    """Decrypts and loads Excel files safely in memory."""
     decrypted_stream = io.BytesIO()
     office_file = msoffcrypto.OfficeFile(file_bytes)
     office_file.load_key(password=password)
@@ -192,7 +198,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Cannot open file. Please check password or file format.")
+        raise ValueError("Hindi mabuksan ang file. Pakisuri ang password o file format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -206,7 +212,6 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def find_matching_column(df_columns, target_name):
-    """Smart column identification."""
     cols_clean = {str(c).strip().lower(): c for c in df_columns}
     target_clean = target_name.strip().lower()
 
@@ -225,7 +230,6 @@ def find_matching_column(df_columns, target_name):
     return None
 
 def clean_id(val):
-    """Cleans up Employee IDs."""
     if pd.isna(val):
         return ""
     val_str = str(val).strip()
@@ -234,7 +238,6 @@ def clean_id(val):
     return val_str.replace(" ", "")
 
 def process_validation(main_bytes, dr2_bytes, pwd):
-    """Core validation processing."""
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
@@ -360,72 +363,57 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     return output_stream
 
 # --- HEADER SECTION ---
-st.markdown('<div class="card-title">Validate Payroll Hours</div>', unsafe_allow_html=True)
-st.markdown('<div class="card-subtitle">Cross-check input files against masterfile records instantly.</div>', unsafe_allow_html=True)
+st.markdown("""
+    <div class="zen-header">
+        <div class="zen-badge">🌿 AUTOMATED VALIDATION WORKSPACE</div>
+        <div class="zen-title">Payroll Hours Validator</div>
+        <div class="zen-subtitle">Seamlessly reconcile input ledgers with your masterfile in seconds.</div>
+    </div>
+""", unsafe_allow_html=True)
 
-# --- UPLOAD FORM CONTAINER ---
-st.markdown('<span class="input-label">Select Input File</span>', unsafe_allow_html=True)
+# --- FORM SECTION ---
 main_file = st.file_uploader(
-    "Upload Input File",
+    "1. Input File",
     type=["xlsx", "xlsb", "xls"],
-    key="main_file_key",
-    label_visibility="collapsed"
+    key="main_file_key"
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-st.markdown('<span class="input-label">Select Masterfile</span>', unsafe_allow_html=True)
 dr2_file = st.file_uploader(
-    "Upload Masterfile",
+    "2. Masterfile",
     type=["xlsx", "xlsb", "xls"],
-    key="dr2_file_key",
-    label_visibility="collapsed"
+    key="dr2_file_key"
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-st.markdown('<span class="input-label">Excel Security Password</span>', unsafe_allow_html=True)
 password = st.text_input(
-    "File Password",
+    "3. Decryption Password",
     value="tp_paseo",
-    type="password",
-    label_visibility="collapsed"
+    type="password"
 )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- ACTION & RESULTS ---
-if st.button("Run Validation", type="primary"):
+# --- ACTION & OUTPUT ---
+if st.button("Start Validation", type="primary"):
     if not main_file or not dr2_file:
-        st.error("Please upload both the Input File and Masterfile to proceed.")
+        st.warning("Pakiupload ang Input File at Masterfile para magsimula.")
     else:
-        with st.spinner("Analyzing payroll records..."):
+        with st.spinner("Verifying records..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
                 
-                # Soft Colored Metric Cards (Matching Reference Style)
-                m1, m2 = st.columns(2)
-                with m1:
-                    st.markdown("""
-                        <div class="metric-card-green">
-                            <div class="metric-value-green">Ready</div>
-                            <div class="metric-label-green">Validation Status</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                with m2:
-                    st.markdown("""
-                        <div class="metric-card-green">
-                            <div class="metric-value-green">.XLSX</div>
-                            <div class="metric-label-green">Output Format</div>
-                        </div>
-                    """, unsafe_allow_html=True)
+                st.markdown("""
+                    <div class="success-card">
+                        <div class="success-title"> Validation Complete</div>
+                        <div class="success-desc">All calculations match. Your report is formatted and ready for download.</div>
+                    </div>
+                """, unsafe_allow_html=True)
                 
                 st.download_button(
-                    label="Download Validated Report",
+                    label="Download Validated Report (.xlsx)",
                     data=result_excel,
                     file_name="Hourly_Regular_Hours_Validated.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Error processing files: {str(e)}")
+                st.error(f"Error: {str(e)}")
