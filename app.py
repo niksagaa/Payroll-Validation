@@ -19,6 +19,15 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
+    /* --- HIDE STREAMLIT CHROME (HEADER, FOOTER, TOOLBARS) --- */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden !important;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    [data-testid="stDecoration"] {display: none;}
+    [data-testid="stStatusWidget"] {display: none;}
+    .viewerBadge_container__163Vn {display: none !important;}
+
     /* Global Canvas Reset */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
@@ -27,15 +36,15 @@ st.markdown("""
     }
 
     .main .block-container {
-        padding-top: 3.5rem;
-        padding-bottom: 4rem;
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
         max-width: 600px;
     }
 
     /* Header Styling */
     .zen-header {
         text-align: center;
-        margin-bottom: 2.5rem;
+        margin-bottom: 2rem;
     }
 
     .zen-badge {
@@ -64,22 +73,21 @@ st.markdown("""
         line-height: 1.5;
     }
 
-    /* Section Field Labels (Malinaw at Visible) */
+    /* Section Field Labels */
     .field-label {
         font-size: 0.88rem;
         font-weight: 700;
         color: #1E3E2F;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         display: block;
     }
 
-    /* Target Native Streamlit Uploader Containers */
+    /* Target File Uploader Dropzone */
     [data-testid="stFileUploader"] {
         background-color: transparent !important;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
     }
 
-    /* Direct Dropzone Styling Override (Tanggal Dark Gray Box) */
     [data-testid="stFileUploaderDropzone"] {
         background-color: #FFFFFF !important;
         border: 1.5px dashed #C2D3C9 !important;
@@ -92,17 +100,14 @@ st.markdown("""
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #2E5A44 !important;
         background-color: #F8FAF9 !important;
-        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.08) !important;
     }
 
-    /* Dropzone Text Color Overrides */
     [data-testid="stFileUploaderDropzone"] span, 
     [data-testid="stFileUploaderDropzone"] small,
     [data-testid="stFileUploaderDropzone"] p {
         color: #4A6356 !important;
     }
 
-    /* Upload Button Inside Dropzone */
     [data-testid="stFileUploaderDropzone"] button {
         background-color: #E8F0EC !important;
         color: #2E5A44 !important;
@@ -111,19 +116,20 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Password Text Input Field */
-    div[data-baseweb="input"] {
+    /* Force Light Theme on Password Input Elements */
+    div[data-baseweb="input"],
+    div[data-baseweb="input"] > div,
+    input[type="password"],
+    input[type="text"] {
         background-color: #FFFFFF !important;
-        border: 1.5px solid #C2D3C9 !important;
-        border-radius: 14px !important;
         color: #1A2E26 !important;
-        height: 3.2rem !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+        border-radius: 14px !important;
     }
 
-    div[data-baseweb="input"] input {
-        color: #1A2E26 !important;
-        font-weight: 500 !important;
+    div[data-baseweb="input"] {
+        border: 1.5px solid #C2D3C9 !important;
+        height: 3.2rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
     }
 
     div[data-baseweb="input"]:focus-within {
@@ -131,13 +137,15 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(46, 90, 68, 0.15) !important;
     }
 
-    /* Full-Width Main Action Button */
+    /* Force Full-Width Button Container & Light Style */
+    [data-testid="stButton"],
     div.stButton {
         width: 100% !important;
         margin-top: 1rem;
     }
 
-    div.stButton > button:first-child {
+    [data-testid="stButton"] > button,
+    div.stButton > button {
         width: 100% !important;
         border-radius: 14px !important;
         height: 3.6rem !important;
@@ -150,18 +158,20 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
-    div.stButton > button:first-child:hover {
+    [data-testid="stButton"] > button:hover,
+    div.stButton > button:hover {
         background: #234735 !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 12px 24px rgba(46, 90, 68, 0.35) !important;
     }
 
-    /* Download Button Specific Styling */
+    /* Download Button Styling */
+    [data-testid="stDownloadButton"],
     div[data-testid="stDownloadButton"] {
         width: 100% !important;
     }
 
-    div[data-testid="stDownloadButton"] > button {
+    [data-testid="stDownloadButton"] > button {
         background: #2E5A44 !important;
         color: #FFFFFF !important;
         font-weight: 700 !important;
@@ -173,12 +183,12 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
-    div[data-testid="stDownloadButton"] > button:hover {
+    [data-testid="stDownloadButton"] > button:hover {
         background: #234735 !important;
         transform: translateY(-2px) !important;
     }
 
-    /* Clean Success Card */
+    /* Success Result Card */
     .success-card {
         background-color: #FFFFFF;
         border: 1.5px solid #2E5A44;
