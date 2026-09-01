@@ -10,38 +10,41 @@ from openpyxl.utils import get_column_letter
 st.set_page_config(
     page_title="Payroll Hours Validator",
     page_icon="🌿",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED UI CSS WITH CONTRAST & LAYOUT FIXES ---
+# --- REVISED HIGH-CONTRAST CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
+    /* Hide Streamlit Chrome */
     #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
         visibility: hidden !important;
         display: none !important;
     }
 
+    /* Global App Background */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
         background-color: #E2ECE6 !important;
-        color: #12231C !important;
+        color: #0F1C17 !important;
     }
 
-    /* Outer Container: Widened and High Contrast Header */
+    /* Center Card Container */
     .main .block-container {
-        padding: 2.5rem 3.5rem !important;
-        max-width: 900px !important;
+        padding: 2.5rem 3rem !important;
+        max-width: 720px !important;
         background-color: #FFFFFF !important;
         border: 1px solid #C2D3C9 !important;
         border-radius: 16px !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
         margin-top: 2rem !important;
         margin-bottom: 2rem !important;
     }
 
+    /* Header Styling */
     .zen-header {
         text-align: center;
         margin-bottom: 2rem;
@@ -50,7 +53,7 @@ st.markdown("""
     .zen-badge {
         display: inline-block;
         background-color: #173124;
-        color: #FFFFFF;
+        color: #FFFFFF !important;
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.8px;
@@ -68,12 +71,12 @@ st.markdown("""
     }
 
     .zen-subtitle {
-        font-size: 0.95rem;
-        color: #2E453A;
+        font-size: 0.9rem;
+        color: #3A4E45;
         font-weight: 500;
     }
 
-    /* Accessible High-Contrast Section Titles & Labels */
+    /* Section Headings */
     .section-title {
         font-size: 1.05rem;
         font-weight: 700;
@@ -84,9 +87,12 @@ st.markdown("""
         padding-bottom: 6px;
     }
 
-    [data-testid="stMarkdownContainer"] p {
-        color: #0F1C17 !important;
-        font-weight: 600 !important;
+    .input-label {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0F1C17;
+        margin-bottom: 0.4rem;
+        display: block;
     }
 
     /* File Uploader styling */
@@ -94,7 +100,7 @@ st.markdown("""
         background-color: #F4F8F5 !important;
         border: 2px dashed #3D6B52 !important;
         border-radius: 12px !important;
-        padding: 1.2rem !important;
+        padding: 1rem !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
@@ -108,7 +114,7 @@ st.markdown("""
     [data-testid="stFileUploaderDropzone"] p {
         color: #173124 !important;
         font-size: 0.85rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
 
     /* File Status Indicator */
@@ -126,9 +132,9 @@ st.markdown("""
         border: 1px solid #3D6B52;
     }
 
-    /* Password Input Fixes */
+    /* Light Theme Password Input Override */
     div[data-baseweb="input"] {
-        background-color: #FFFFFF !important;
+        background-color: #F4F8F5 !important;
         border: 1.5px solid #3D6B52 !important;
         border-radius: 8px !important;
         height: 2.8rem !important;
@@ -136,11 +142,16 @@ st.markdown("""
 
     div[data-baseweb="input"]:focus-within {
         border-color: #173124 !important;
+        background-color: #FFFFFF !important;
     }
 
     div[data-baseweb="input"] input {
         color: #0F1C17 !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
+    }
+
+    div[data-baseweb="input"] button {
+        color: #3D6B52 !important;
     }
 
     /* Pipeline Status Container */
@@ -170,7 +181,7 @@ st.markdown("""
         display: block;
     }
 
-    /* Buttons Alignment */
+    /* Primary & Secondary Buttons Fix */
     div.stButton > button {
         border-radius: 8px !important;
         height: 3rem !important;
@@ -179,24 +190,39 @@ st.markdown("""
         transition: all 0.2s ease !important;
     }
 
+    /* PRIMARY BUTTON: Solid Dark Green with Crisp White Text */
     div.stButton > button[kind="primary"] {
-        background: #173124 !important;
+        background-color: #173124 !important;
+        border: 1px solid #173124 !important;
+    }
+
+    div.stButton > button[kind="primary"] p {
         color: #FFFFFF !important;
-        border: none !important;
+        font-weight: 700 !important;
     }
 
     div.stButton > button[kind="primary"]:hover {
-        background: #0F1C17 !important;
+        background-color: #0F1C17 !important;
     }
 
+    /* SECONDARY BUTTON: Neutral Gray/Green Border (No Loud Red Outline) */
     div.stButton > button[kind="secondary"] {
-        background: #FFFFFF !important;
-        color: #A30000 !important;
-        border: 1.5px solid #A30000 !important;
+        background-color: #FFFFFF !important;
+        border: 1.5px solid #C2D3C9 !important;
+    }
+
+    div.stButton > button[kind="secondary"] p {
+        color: #3A4E45 !important;
+        font-weight: 600 !important;
     }
 
     div.stButton > button[kind="secondary"]:hover {
-        background: #FDF2F2 !important;
+        background-color: #F4F8F5 !important;
+        border-color: #3D6B52 !important;
+    }
+
+    div.stButton > button[kind="secondary"]:hover p {
+        color: #173124 !important;
     }
 
     .footer-text {
@@ -416,7 +442,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Function to handle state clearing
+# Form reset state handling
 def reset_form():
     st.session_state["uploader_key_1"] = st.session_state.get("uploader_key_1", 0) + 1
     st.session_state["uploader_key_2"] = st.session_state.get("uploader_key_2", 0) + 1
@@ -435,7 +461,7 @@ st.markdown('<div class="section-title">1. Select Source Files</div>', unsafe_al
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("**Input File Ledger**")
+    st.markdown('<span class="input-label">Input File Ledger</span>', unsafe_allow_html=True)
     main_file = st.file_uploader(
         "Upload Input File Ledger",
         type=["xlsx", "xlsb", "xls"],
@@ -451,7 +477,7 @@ with col1:
         """, unsafe_allow_html=True)
 
 with col2:
-    st.markdown("**Masterfile**")
+    st.markdown('<span class="input-label">Masterfile</span>', unsafe_allow_html=True)
     dr2_file = st.file_uploader(
         "Upload Masterfile",
         type=["xlsx", "xlsb", "xls"],
@@ -469,7 +495,7 @@ with col2:
 # --- 2. PROVIDE ACCESS AND SECURE ---
 st.markdown('<div class="section-title">2. Provide Access and Secure</div>', unsafe_allow_html=True)
 
-st.markdown("**Decryption Password**")
+st.markdown('<span class="input-label">Decryption Password</span>', unsafe_allow_html=True)
 password = st.text_input(
     "Decryption Password",
     value=st.session_state["pwd_value"],
@@ -487,14 +513,14 @@ with btn_col1:
 with btn_col2:
     clear_btn = st.button("Clear Form", type="secondary", use_container_width=True, on_click=reset_form)
 
-# Validation logic & runtime rendering of steps
+# Execution Logic
 if start_btn:
     if not main_file or not dr2_file:
         st.error("Please upload both the Input File Ledger and Masterfile before proceeding.")
     elif not password:
         st.error("Please enter the decryption password.")
     else:
-        # Dynamic Pipeline Step Container shown only during processing
+        # Step progress container (only visible while running)
         pipeline_placeholder = st.empty()
         pipeline_placeholder.markdown("""
             <div class="pipeline-container">
