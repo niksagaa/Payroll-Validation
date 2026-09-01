@@ -14,10 +14,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED HIGH-FINISH LIGHT EMERALD CSS ---
+# --- REVISED CLEAN SINGLE-CARD LAYOUT CSS ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     /* Hide Streamlit Chrome Header & Footers */
     #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
@@ -25,20 +25,20 @@ st.markdown("""
         display: none !important;
     }
 
-    /* Global App Background */
+    /* Global Page Background */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
         background-color: #EBF2EE !important;
         color: #0F382C !important;
     }
 
-    /* Center Main Layout Container */
+    /* Center Container Spacing */
     .main .block-container {
-        padding: 2.5rem 2rem !important;
-        max-width: 760px !important;
+        padding: 3rem 1.5rem !important;
+        max-width: 780px !important;
     }
 
-    /* Main Header Styling */
+    /* Header Styling */
     .zen-header {
         text-align: center;
         margin-bottom: 2rem;
@@ -71,14 +71,13 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* Form Card Container Styling */
-    .form-card {
+    /* STREAMLIT CONTAINER OVERRIDE - SINGLE LARGE CARD */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: #FFFFFF !important;
-        border: 1px solid #C8DEC3 !important;
-        border-radius: 14px !important;
-        padding: 1.5rem !important;
-        margin-bottom: 1.5rem !important;
-        box-shadow: 0 4px 15px rgba(15, 118, 110, 0.03) !important;
+        border: 1px solid #D1E2D9 !important;
+        border-radius: 18px !important;
+        padding: 2.2rem 2.2rem !important;
+        box-shadow: 0 10px 30px rgba(15, 118, 110, 0.04) !important;
     }
 
     /* Section Headings */
@@ -86,10 +85,10 @@ st.markdown("""
         font-size: 1.05rem;
         font-weight: 700;
         color: #0F766E;
+        margin-top: 0.5rem;
         margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        border-bottom: 1.5px solid #F0F5F2;
+        padding-bottom: 8px;
     }
 
     .input-label {
@@ -100,11 +99,11 @@ st.markdown("""
         display: block;
     }
 
-    /* FORCE UPLOADER BOX LIGHT COLORS (OVERRIDING STREAMLIT DARKNESS) */
+    /* UPLOADER LIGHT STYLING & REMOVING BLACK BUTTONS */
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #F4F9F6 !important;
+        background-color: #F6FAF7 !important;
         border: 2px dashed #0F766E !important;
-        border-radius: 10px !important;
+        border-radius: 12px !important;
         padding: 1.2rem 1rem !important;
     }
 
@@ -113,7 +112,6 @@ st.markdown("""
         background-color: #E8F4EE !important;
     }
 
-    /* Target inner dropzone texts & elements */
     [data-testid="stFileUploaderDropzone"] div,
     [data-testid="stFileUploaderDropzone"] span,
     [data-testid="stFileUploaderDropzone"] small,
@@ -124,7 +122,6 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* OVERRIDE BLACK BUTTON INSIDE FILE UPLOADER */
     [data-testid="stFileUploaderDropzone"] button {
         background-color: #0F766E !important;
         border: none !important;
@@ -141,7 +138,6 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* File Status Indicator */
     .file-status-box {
         background-color: #E6F4EA;
         border-radius: 8px;
@@ -156,9 +152,9 @@ st.markdown("""
         border: 1px solid #B4DEC9;
     }
 
-    /* FORCE LIGHT THEME FOR INPUT/PASSWORD FIELDS */
+    /* LIGHT THEME FOR INPUT & PASSWORD FIELD */
     div[data-baseweb="input"] {
-        background-color: #F4F9F6 !important;
+        background-color: #F6FAF7 !important;
         border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
         height: 2.8rem !important;
@@ -176,7 +172,6 @@ st.markdown("""
         background-color: transparent !important;
     }
 
-    /* Eye icon & Press enter text color fix */
     div[data-baseweb="input"] button,
     div[data-baseweb="input"] svg,
     div[data-baseweb="input"] span,
@@ -185,12 +180,12 @@ st.markdown("""
         fill: #0F766E !important;
     }
 
-    /* Pipeline Container */
+    /* Pipeline Step Box */
     .pipeline-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         margin-bottom: 1rem;
         padding: 12px;
         background-color: #E8F4EE;
@@ -212,7 +207,7 @@ st.markdown("""
         display: block;
     }
 
-    /* Bottom Main Action Buttons */
+    /* Bottom Buttons inside Card */
     div.stButton > button {
         border-radius: 8px !important;
         height: 3rem !important;
@@ -221,7 +216,6 @@ st.markdown("""
         transition: all 0.2s ease !important;
     }
 
-    /* PRIMARY BUTTON: Emerald Green with White Text */
     div.stButton > button[kind="primary"] {
         background-color: #0F766E !important;
         border: 1px solid #0F766E !important;
@@ -238,7 +232,6 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2) !important;
     }
 
-    /* SECONDARY BUTTON: White background with Light Border */
     div.stButton > button[kind="secondary"] {
         background-color: #FFFFFF !important;
         border: 1.5px solid #C8DEC3 !important;
@@ -250,7 +243,7 @@ st.markdown("""
     }
 
     div.stButton > button[kind="secondary"]:hover {
-        background-color: #F4F9F6 !important;
+        background-color: #F6FAF7 !important;
         border-color: #0F766E !important;
     }
 
@@ -488,13 +481,12 @@ if "uploader_key_2" not in st.session_state:
 if "pwd_value" not in st.session_state:
     st.session_state["pwd_value"] = ""
 
-# --- CARD 1: FILE UPLOADS ---
-with st.container():
-    st.markdown("""
-        <div class="form-card">
-            <div class="section-title">1. Upload Payroll Files</div>
-    """, unsafe_allow_html=True)
+# --- SINGLE CARD FORM CONTAINER ---
+with st.container(border=True):
     
+    # --- 1. UPLOAD PAYROLL FILES ---
+    st.markdown('<div class="section-title">1. Upload Payroll Files</div>', unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -528,15 +520,11 @@ with st.container():
                     <span>✓ Attached</span>
                 </div>
             """, unsafe_allow_html=True)
-            
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# --- CARD 2: SECURITY & CREDENTIALS ---
-with st.container():
-    st.markdown("""
-        <div class="form-card">
-            <div class="section-title">2. Security & Credentials</div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+
+    # --- 2. SECURITY & CREDENTIALS ---
+    st.markdown('<div class="section-title">2. Security & Credentials</div>', unsafe_allow_html=True)
 
     st.markdown('<span class="input-label">File Password</span>', unsafe_allow_html=True)
     password = st.text_input(
@@ -546,19 +534,19 @@ with st.container():
         placeholder="Enter file password (leave blank if unencrypted)",
         label_visibility="collapsed"
     )
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# --- ACTIONS & BUTTONS ---
-btn_col1, btn_col2 = st.columns([3, 1])
+    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
 
-with btn_col1:
-    start_btn = st.button("Run Payroll Validation", type="primary", use_container_width=True)
+    # --- ACTIONS & BUTTONS (Inside the Card) ---
+    btn_col1, btn_col2 = st.columns([3, 1])
 
-with btn_col2:
-    clear_btn = st.button("Reset Form", type="secondary", use_container_width=True, on_click=reset_form)
+    with btn_col1:
+        start_btn = st.button("Run Payroll Validation", type="primary", use_container_width=True)
 
-# Execution Logic
+    with btn_col2:
+        clear_btn = st.button("Reset Form", type="secondary", use_container_width=True, on_click=reset_form)
+
+# Execution Logic (Outside Card for Progress display)
 if start_btn:
     if not main_file or not dr2_file:
         st.error("Please upload both Payroll Inputs and Masterfile before proceeding.")
