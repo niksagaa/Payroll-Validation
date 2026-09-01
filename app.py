@@ -8,13 +8,13 @@ from openpyxl.utils import get_column_letter
 
 # Page Config
 st.set_page_config(
-    page_title="Payroll Validator",
+    page_title="Payroll Hours Validator",
     page_icon="🌿",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Nature & Zen UI Aesthetics
+# Deep Zen / Clean Nature CSS Overrides
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -22,149 +22,183 @@ st.markdown("""
     /* Global Canvas Reset */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        background: linear-gradient(180deg, #FBFBF9 0%, #F4F5F0 100%) !important;
-        color: #2D3748 !important;
+        background: #F4F6F3 !important;
+        color: #1A2E26 !important;
     }
 
     .main .block-container {
-        padding-top: 3rem;
+        padding-top: 3.5rem;
         padding-bottom: 4rem;
-        max-width: 640px;
+        max-width: 600px;
     }
 
-    /* Header Section */
+    /* Header Styling */
     .zen-header {
         text-align: center;
-        margin-bottom: 2.2rem;
+        margin-bottom: 2.5rem;
     }
 
     .zen-badge {
         display: inline-block;
-        background-color: #E8F0EC;
+        background-color: #E2ECE6;
         color: #2E5A44;
-        font-size: 0.78rem;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        padding: 4px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        padding: 5px 16px;
         border-radius: 20px;
         margin-bottom: 0.8rem;
     }
 
     .zen-title {
-        font-size: 1.85rem;
+        font-size: 2rem;
         font-weight: 700;
-        color: #1A2E26;
+        color: #12231C;
         letter-spacing: -0.5px;
         margin-bottom: 0.4rem;
     }
 
     .zen-subtitle {
         font-size: 0.92rem;
-        color: #64748B;
+        color: #5A6E65;
         line-height: 1.5;
     }
 
-    /* Sleek Native Card Container */
-    div.element-container {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    /* Section Field Labels (Malinaw at Visible) */
+    .field-label {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #1E3E2F;
+        margin-bottom: 0.5rem;
+        display: block;
     }
 
-    /* Clean Inputs Alignment */
-    .stMarkdown p {
-        font-size: 0.88rem !important;
-        font-weight: 600 !important;
-        color: #334155 !important;
-        margin-bottom: 0.3rem !important;
-    }
-
-    /* Streamlit Uploader Modern Clean Styling */
+    /* Target Native Streamlit Uploader Containers */
     [data-testid="stFileUploader"] {
+        background-color: transparent !important;
+        margin-bottom: 1.2rem;
+    }
+
+    /* Direct Dropzone Styling Override (Tanggal Dark Gray Box) */
+    [data-testid="stFileUploaderDropzone"] {
         background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 14px !important;
-        padding: 10px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        border: 1.5px dashed #C2D3C9 !important;
+        border-radius: 16px !important;
+        padding: 1.2rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
         transition: all 0.25s ease !important;
     }
 
-    [data-testid="stFileUploader"]:hover {
+    [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #2E5A44 !important;
-        box-shadow: 0 4px 12px rgba(46, 90, 68, 0.08) !important;
+        background-color: #F8FAF9 !important;
+        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.08) !important;
     }
 
-    /* Input Field Customization */
+    /* Dropzone Text Color Overrides */
+    [data-testid="stFileUploaderDropzone"] span, 
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] p {
+        color: #4A6356 !important;
+    }
+
+    /* Upload Button Inside Dropzone */
+    [data-testid="stFileUploaderDropzone"] button {
+        background-color: #E8F0EC !important;
+        color: #2E5A44 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Password Text Input Field */
     div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 12px !important;
+        border: 1.5px solid #C2D3C9 !important;
+        border-radius: 14px !important;
         color: #1A2E26 !important;
-        height: 2.8rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        height: 3.2rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    div[data-baseweb="input"] input {
+        color: #1A2E26 !important;
+        font-weight: 500 !important;
     }
 
     div[data-baseweb="input"]:focus-within {
         border-color: #2E5A44 !important;
-        box-shadow: 0 0 0 3px rgba(46, 90, 68, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(46, 90, 68, 0.15) !important;
     }
 
-    /* Nature Green Primary Button */
+    /* Full-Width Main Action Button */
+    div.stButton {
+        width: 100% !important;
+        margin-top: 1rem;
+    }
+
     div.stButton > button:first-child {
-        width: 100%;
-        border-radius: 14px;
-        height: 3.4rem;
-        font-weight: 600;
-        font-size: 0.98rem;
-        background: linear-gradient(135deg, #2E5A44 0%, #1E3E2F 100%) !important;
+        width: 100% !important;
+        border-radius: 14px !important;
+        height: 3.6rem !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        background: #2E5A44 !important;
         border: none !important;
         color: #FFFFFF !important;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        margin-top: 0.8rem;
-        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.2);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
     div.stButton > button:first-child:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(46, 90, 68, 0.3);
+        background: #234735 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 24px rgba(46, 90, 68, 0.35) !important;
     }
 
     /* Download Button Specific Styling */
+    div[data-testid="stDownloadButton"] {
+        width: 100% !important;
+    }
+
     div[data-testid="stDownloadButton"] > button {
-        background: linear-gradient(135deg, #2E5A44 0%, #1E3E2F 100%) !important;
+        background: #2E5A44 !important;
         color: #FFFFFF !important;
-        font-weight: 600 !important;
-        height: 3.4rem !important;
+        font-weight: 700 !important;
+        height: 3.6rem !important;
         border-radius: 14px !important;
         border: none !important;
         width: 100% !important;
         transition: all 0.25s ease !important;
-        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.2) !important;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.25) !important;
     }
 
     div[data-testid="stDownloadButton"] > button:hover {
+        background: #234735 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 22px rgba(46, 90, 68, 0.3) !important;
     }
 
-    /* Status Banner */
+    /* Clean Success Card */
     .success-card {
-        background-color: #E8F0EC;
-        border: 1px solid #C2D8CD;
-        border-radius: 14px;
+        background-color: #FFFFFF;
+        border: 1.5px solid #2E5A44;
+        border-radius: 16px;
         padding: 1.2rem;
         text-align: center;
         margin-bottom: 1.2rem;
-        color: #1E3E2F;
+        box-shadow: 0 8px 20px rgba(46, 90, 68, 0.08);
     }
 
     .success-title {
         font-weight: 700;
         font-size: 1.05rem;
+        color: #2E5A44;
         margin-bottom: 0.2rem;
     }
 
     .success-desc {
         font-size: 0.85rem;
-        color: #4A6356;
+        color: #5A6E65;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -371,39 +405,43 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- FORM SECTION ---
+# --- FORM INPUTS ---
+st.markdown('<span class="field-label">1. Input File</span>', unsafe_allow_html=True)
 main_file = st.file_uploader(
     "1. Input File",
     type=["xlsx", "xlsb", "xls"],
-    key="main_file_key"
+    key="main_file_key",
+    label_visibility="collapsed"
 )
 
+st.markdown('<span class="field-label">2. Masterfile</span>', unsafe_allow_html=True)
 dr2_file = st.file_uploader(
     "2. Masterfile",
     type=["xlsx", "xlsb", "xls"],
-    key="dr2_file_key"
+    key="dr2_file_key",
+    label_visibility="collapsed"
 )
 
+st.markdown('<span class="field-label">3. Decryption Password</span>', unsafe_allow_html=True)
 password = st.text_input(
     "3. Decryption Password",
     value="tp_paseo",
-    type="password"
+    type="password",
+    label_visibility="collapsed"
 )
 
-st.markdown("<br>", unsafe_allow_html=True)
-
 # --- ACTION & OUTPUT ---
-if st.button("Start Validation", type="primary"):
+if st.button("Start Validation Engine 🌿", type="primary"):
     if not main_file or not dr2_file:
         st.warning("Pakiupload ang Input File at Masterfile para magsimula.")
     else:
-        with st.spinner("Verifying records..."):
+        with st.spinner("Reconciling payroll records..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
                 
                 st.markdown("""
                     <div class="success-card">
-                        <div class="success-title"> Validation Complete</div>
+                        <div class="success-title">Validation Successful</div>
                         <div class="success-desc">All calculations match. Your report is formatted and ready for download.</div>
                     </div>
                 """, unsafe_allow_html=True)
