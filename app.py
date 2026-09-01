@@ -39,6 +39,16 @@ st.markdown("""
         max-width: 780px !important;
     }
 
+    /* FORM CARD BACKGROUND COLOR & BORDER */
+    [data-testid="stForm"], div[class*="st-key-"] > div[data-testid="stVerticalBlockBorderWrapper"],
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #F3F8F5 !important;
+        border: 1.5px solid #C5E1D4 !important;
+        border-radius: 16px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 4px 20px rgba(15, 118, 110, 0.05) !important;
+    }
+
     /* Header Styling */
     .zen-header {
         text-align: center;
@@ -79,7 +89,7 @@ st.markdown("""
         color: #0F766E;
         margin-top: 0.5rem;
         margin-bottom: 1rem;
-        border-bottom: 1.5px solid #F0F5F2;
+        border-bottom: 1.5px solid #DDF0E7;
         padding-bottom: 8px;
     }
 
@@ -93,7 +103,7 @@ st.markdown("""
 
     /* UPLOADER LIGHT STYLING & REMOVING BLACK BUTTONS */
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #F6FAF7 !important;
+        background-color: #FFFFFF !important;
         border: 2px dashed #0F766E !important;
         border-radius: 12px !important;
         padding: 1.2rem 1rem !important;
@@ -101,7 +111,7 @@ st.markdown("""
 
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #0D9488 !important;
-        background-color: #E8F4EE !important;
+        background-color: #EBF7F2 !important;
     }
 
     [data-testid="stFileUploaderDropzone"] div,
@@ -146,7 +156,7 @@ st.markdown("""
 
     /* LIGHT THEME FOR INPUT & PASSWORD FIELD */
     div[data-baseweb="input"] {
-        background-color: #F6FAF7 !important;
+        background-color: #FFFFFF !important;
         border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
         height: 2.8rem !important;
@@ -511,7 +521,7 @@ if "uploader_key_2" not in st.session_state:
 if "pwd_value" not in st.session_state:
     st.session_state["pwd_value"] = ""
 
-# --- SINGLE FORM CARD (NATIVE STREAMLIT FORM CONTAINER WITH CSS BORDER) ---
+# --- SINGLE FORM CARD (NATIVE STREAMLIT FORM CONTAINER WITH CUSTOM BACKGROUND) ---
 form_card = st.container(border=True)
 
 with form_card:
