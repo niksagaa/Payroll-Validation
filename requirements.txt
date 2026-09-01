@@ -4,4 +4,3 @@ openpyxl
 msoffcrypto-tool
 pyxlsb
 xlrd
-EOF
