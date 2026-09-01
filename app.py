@@ -14,12 +14,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED LIGHT & FRESH THEME CSS ---
+# --- REVISED HIGH-FINISH LIGHT EMERALD CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-    /* Hide Streamlit Chrome */
+    /* Hide Streamlit Chrome Header & Footers */
     #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
         visibility: hidden !important;
         display: none !important;
@@ -28,23 +28,17 @@ st.markdown("""
     /* Global App Background */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        background-color: #F0F5F2 !important;
-        color: #1E293B !important;
+        background-color: #EBF2EE !important;
+        color: #0F382C !important;
     }
 
-    /* Center Card Container */
+    /* Center Main Layout Container */
     .main .block-container {
-        padding: 2.5rem 3rem !important;
-        max-width: 720px !important;
-        background-color: #FFFFFF !important;
-        border: 1px solid #D1E2D9 !important;
-        border-radius: 16px !important;
-        box-shadow: 0 10px 30px rgba(15, 118, 110, 0.05) !important;
-        margin-top: 2rem !important;
-        margin-bottom: 2rem !important;
+        padding: 2.5rem 2rem !important;
+        max-width: 760px !important;
     }
 
-    /* Header Styling */
+    /* Main Header Styling */
     .zen-header {
         text-align: center;
         margin-bottom: 2rem;
@@ -52,20 +46,20 @@ st.markdown("""
 
     .zen-badge {
         display: inline-block;
-        background-color: #E6F4EA;
+        background-color: #D8ECE2;
         color: #0F766E !important;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.8px;
         padding: 6px 16px;
         border-radius: 20px;
-        border: 1px solid #A7F3D0;
+        border: 1px solid #B4DEC9;
         margin-bottom: 0.8rem;
     }
 
     .zen-title {
-        font-size: 2.2rem;
-        font-weight: 700;
+        font-size: 2.3rem;
+        font-weight: 800;
         color: #0F766E;
         letter-spacing: -0.5px;
         margin-bottom: 0.4rem;
@@ -73,8 +67,18 @@ st.markdown("""
 
     .zen-subtitle {
         font-size: 0.92rem;
-        color: #475569;
+        color: #4A6B5D;
         font-weight: 500;
+    }
+
+    /* Form Card Container Styling */
+    .form-card {
+        background-color: #FFFFFF !important;
+        border: 1px solid #C8DEC3 !important;
+        border-radius: 14px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+        box-shadow: 0 4px 15px rgba(15, 118, 110, 0.03) !important;
     }
 
     /* Section Headings */
@@ -82,61 +86,80 @@ st.markdown("""
         font-size: 1.05rem;
         font-weight: 700;
         color: #0F766E;
-        margin-top: 1.8rem;
-        margin-bottom: 0.8rem;
-        border-bottom: 2px solid #E6F4EA;
-        padding-bottom: 6px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .input-label {
         font-size: 0.88rem;
         font-weight: 700;
-        color: #334155;
-        margin-bottom: 0.4rem;
+        color: #24473B;
+        margin-bottom: 0.5rem;
         display: block;
     }
 
-    /* File Uploader styling */
+    /* FORCE UPLOADER BOX LIGHT COLORS (OVERRIDING STREAMLIT DARKNESS) */
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #F8FAFC !important;
+        background-color: #F4F9F6 !important;
         border: 2px dashed #0F766E !important;
-        border-radius: 12px !important;
-        padding: 1rem !important;
+        border-radius: 10px !important;
+        padding: 1.2rem 1rem !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #0D9488 !important;
-        background-color: #F0FDF4 !important;
+        background-color: #E8F4EE !important;
     }
 
+    /* Target inner dropzone texts & elements */
     [data-testid="stFileUploaderDropzone"] div,
     [data-testid="stFileUploaderDropzone"] span,
     [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] p {
+    [data-testid="stFileUploaderDropzone"] p,
+    [data-testid="stFileUploaderDropzone"] label {
         color: #0F766E !important;
         font-size: 0.85rem !important;
         font-weight: 600 !important;
     }
 
+    /* OVERRIDE BLACK BUTTON INSIDE FILE UPLOADER */
+    [data-testid="stFileUploaderDropzone"] button {
+        background-color: #0F766E !important;
+        border: none !important;
+        border-radius: 6px !important;
+        color: #FFFFFF !important;
+        box-shadow: none !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button:hover {
+        background-color: #0D9488 !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button * {
+        color: #FFFFFF !important;
+    }
+
     /* File Status Indicator */
     .file-status-box {
-        background-color: #F0FDF4;
+        background-color: #E6F4EA;
         border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 0.85rem;
+        padding: 8px 12px;
+        font-size: 0.82rem;
         font-weight: 600;
         color: #0F766E;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-top: 8px;
-        border: 1px solid #A7F3D0;
+        border: 1px solid #B4DEC9;
     }
 
-    /* Light Theme Password Input Override */
+    /* FORCE LIGHT THEME FOR INPUT/PASSWORD FIELDS */
     div[data-baseweb="input"] {
-        background-color: #F8FAFC !important;
-        border: 1.5px solid #CBD5E1 !important;
+        background-color: #F4F9F6 !important;
+        border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
         height: 2.8rem !important;
     }
@@ -144,28 +167,35 @@ st.markdown("""
     div[data-baseweb="input"]:focus-within {
         border-color: #0F766E !important;
         background-color: #FFFFFF !important;
+        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15) !important;
     }
 
     div[data-baseweb="input"] input {
-        color: #1E293B !important;
+        color: #0F382C !important;
         font-weight: 600 !important;
+        background-color: transparent !important;
     }
 
-    div[data-baseweb="input"] button {
+    /* Eye icon & Press enter text color fix */
+    div[data-baseweb="input"] button,
+    div[data-baseweb="input"] svg,
+    div[data-baseweb="input"] span,
+    div[data-testid="stInputInstructions"] {
         color: #0F766E !important;
+        fill: #0F766E !important;
     }
 
-    /* Pipeline Status Container */
+    /* Pipeline Container */
     .pipeline-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         margin-bottom: 1rem;
         padding: 12px;
-        background-color: #F0FDF4;
+        background-color: #E8F4EE;
         border-radius: 8px;
-        border: 1px solid #A7F3D0;
+        border: 1px solid #B4DEC9;
     }
 
     .pipeline-step {
@@ -182,7 +212,7 @@ st.markdown("""
         display: block;
     }
 
-    /* Primary & Secondary Buttons Fix */
+    /* Bottom Main Action Buttons */
     div.stButton > button {
         border-radius: 8px !important;
         height: 3rem !important;
@@ -191,7 +221,7 @@ st.markdown("""
         transition: all 0.2s ease !important;
     }
 
-    /* PRIMARY BUTTON: Fresh Emerald Green with Crisp White Text */
+    /* PRIMARY BUTTON: Emerald Green with White Text */
     div.stButton > button[kind="primary"] {
         background-color: #0F766E !important;
         border: 1px solid #0F766E !important;
@@ -205,21 +235,22 @@ st.markdown("""
     div.stButton > button[kind="primary"]:hover {
         background-color: #0D9488 !important;
         border-color: #0D9488 !important;
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2) !important;
     }
 
-    /* SECONDARY BUTTON: Light Gray/Green Border */
+    /* SECONDARY BUTTON: White background with Light Border */
     div.stButton > button[kind="secondary"] {
         background-color: #FFFFFF !important;
-        border: 1.5px solid #CBD5E1 !important;
+        border: 1.5px solid #C8DEC3 !important;
     }
 
     div.stButton > button[kind="secondary"] p {
-        color: #475569 !important;
+        color: #4A6B5D !important;
         font-weight: 600 !important;
     }
 
     div.stButton > button[kind="secondary"]:hover {
-        background-color: #F8FAFC !important;
+        background-color: #F4F9F6 !important;
         border-color: #0F766E !important;
     }
 
@@ -230,7 +261,7 @@ st.markdown("""
     .footer-text {
         text-align: center;
         font-size: 0.78rem;
-        color: #64748B;
+        color: #5A7E70;
         font-weight: 600;
         margin-top: 2rem;
     }
@@ -457,54 +488,66 @@ if "uploader_key_2" not in st.session_state:
 if "pwd_value" not in st.session_state:
     st.session_state["pwd_value"] = ""
 
-# --- 1. UPLOAD PAYROLL FILES ---
-st.markdown('<div class="section-title">1. Upload Payroll Files</div>', unsafe_allow_html=True)
+# --- CARD 1: FILE UPLOADS ---
+with st.container():
+    st.markdown("""
+        <div class="form-card">
+            <div class="section-title">1. Upload Payroll Files</div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
 
-col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<span class="input-label">Payroll Inputs</span>', unsafe_allow_html=True)
+        main_file = st.file_uploader(
+            "Upload Payroll Inputs",
+            type=["xlsx", "xlsb", "xls", "csv"],
+            key=f"main_file_{st.session_state['uploader_key_1']}",
+            label_visibility="collapsed"
+        )
+        if main_file:
+            st.markdown(f"""
+                <div class="file-status-box">
+                    <span>📄 {main_file.name}</span>
+                    <span>✓ Attached</span>
+                </div>
+            """, unsafe_allow_html=True)
 
-with col1:
-    st.markdown('<span class="input-label">Payroll Inputs</span>', unsafe_allow_html=True)
-    main_file = st.file_uploader(
-        "Upload Payroll Inputs",
-        type=["xlsx", "xlsb", "xls", "csv"],
-        key=f"main_file_{st.session_state['uploader_key_1']}",
+    with col2:
+        st.markdown('<span class="input-label">Payroll Masterfile</span>', unsafe_allow_html=True)
+        dr2_file = st.file_uploader(
+            "Upload Payroll Masterfile",
+            type=["xlsx", "xlsb", "xls", "csv"],
+            key=f"dr2_file_{st.session_state['uploader_key_2']}",
+            label_visibility="collapsed"
+        )
+        if dr2_file:
+            st.markdown(f"""
+                <div class="file-status-box">
+                    <span>📄 {dr2_file.name}</span>
+                    <span>✓ Attached</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- CARD 2: SECURITY & CREDENTIALS ---
+with st.container():
+    st.markdown("""
+        <div class="form-card">
+            <div class="section-title">2. Security & Credentials</div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<span class="input-label">File Password</span>', unsafe_allow_html=True)
+    password = st.text_input(
+        "File Password",
+        value=st.session_state["pwd_value"],
+        type="password",
+        placeholder="Enter file password (leave blank if unencrypted)",
         label_visibility="collapsed"
     )
-    if main_file:
-        st.markdown(f"""
-            <div class="file-status-box">
-                <span>📄 {main_file.name}</span>
-                <span>✓ Attached</span>
-            </div>
-        """, unsafe_allow_html=True)
-
-with col2:
-    st.markdown('<span class="input-label">Payroll Masterfile</span>', unsafe_allow_html=True)
-    dr2_file = st.file_uploader(
-        "Upload Payroll Masterfile",
-        type=["xlsx", "xlsb", "xls", "csv"],
-        key=f"dr2_file_{st.session_state['uploader_key_2']}",
-        label_visibility="collapsed"
-    )
-    if dr2_file:
-        st.markdown(f"""
-            <div class="file-status-box">
-                <span>📄 {dr2_file.name}</span>
-                <span>✓ Attached</span>
-            </div>
-        """, unsafe_allow_html=True)
-
-# --- 2. SECURITY & CREDENTIALS ---
-st.markdown('<div class="section-title">2. Security & Credentials</div>', unsafe_allow_html=True)
-
-st.markdown('<span class="input-label">File Password</span>', unsafe_allow_html=True)
-password = st.text_input(
-    "File Password",
-    value=st.session_state["pwd_value"],
-    type="password",
-    placeholder="Enter file password (leave blank if unencrypted)",
-    label_visibility="collapsed"
-)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- ACTIONS & BUTTONS ---
 btn_col1, btn_col2 = st.columns([3, 1])
@@ -522,7 +565,6 @@ if start_btn:
     elif not password:
         st.error("Please enter the file password.")
     else:
-        # Step progress container (only visible while running)
         pipeline_placeholder = st.empty()
         pipeline_placeholder.markdown("""
             <div class="pipeline-container">
