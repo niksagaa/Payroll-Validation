@@ -6,37 +6,77 @@ import streamlit as st
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-# Page configuration
-st.set_page_config(page_title="Payroll Validator", page_icon="📋", layout="centered")
+# Page Config
+st.set_page_config(
+    page_title="Payroll Hourly Validator",
+    page_icon="✨",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# Modern, Non-Tech Friendly CSS Styling
+# Top-Tier Executive UI Styling (Supports Light & Dark Modes)
 st.markdown("""
     <style>
-    /* Clean layout spacing */
+    /* Global Container Setup */
     .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 750px;
+        padding-top: 2.5rem;
+        padding-bottom: 3rem;
+        max-width: 800px;
     }
     
-    /* Step card banners */
-    .step-header {
+    /* Hero Header Styling */
+    .hero-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.2rem;
+    }
+    .hero-subtitle {
         font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        opacity: 0.85;
+        opacity: 0.75;
+        margin-bottom: 1.5rem;
     }
 
-    /* Primary button enhancement */
+    /* Section Step Headers */
+    .step-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        border-radius: 20px;
+        background-color: rgba(31, 78, 120, 0.15);
+        color: #1F4E78;
+        margin-bottom: 0.5rem;
+    }
+    .step-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+
+    /* Modern File Uploader Area */
+    [data-testid="stFileUploader"] {
+        border-radius: 12px;
+        padding: 10px;
+        transition: all 0.2s ease;
+    }
+
+    /* Primary Action Button */
     div.stButton > button:first-child {
         width: 100%;
         border-radius: 8px;
-        height: 3.2em;
+        height: 3.2rem;
         font-weight: 700;
         font-size: 1.05rem;
         letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -52,7 +92,7 @@ COLUMN_MAPPINGS = [
 ]
 
 def load_encrypted_excel(file_bytes, password, sheet_identifier):
-    """Decrypts and loads Excel files safely in-memory."""
+    """Decrypts password-protected Excel files safely in memory."""
     decrypted_stream = io.BytesIO()
     office_file = msoffcrypto.OfficeFile(file_bytes)
     office_file.load_key(password=password)
@@ -71,7 +111,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Cannot open the Excel file. Please check if the file or password is correct.")
+        raise ValueError("Unable to read the encrypted file. Please double-check the file password.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -85,7 +125,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def find_matching_column(df_columns, target_name):
-    """Flexible column search."""
+    """Smart column matching helper."""
     cols_clean = {str(c).strip().lower(): c for c in df_columns}
     target_clean = target_name.strip().lower()
 
@@ -104,7 +144,7 @@ def find_matching_column(df_columns, target_name):
     return None
 
 def clean_id(val):
-    """Cleans up Employee IDs for lookup."""
+    """Standardizes Employee IDs."""
     if pd.isna(val):
         return ""
     val_str = str(val).strip()
@@ -113,7 +153,7 @@ def clean_id(val):
     return val_str.replace(" ", "")
 
 def process_validation(main_bytes, dr2_bytes, pwd):
-    """Core validation processing."""
+    """Cross-validates Input File vs Masterfile data."""
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
@@ -239,13 +279,14 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     return output_stream
 
 # --- HEADER SECTION ---
-st.title("Payroll Hourly Validator")
-st.markdown("Automated cross-checking tool for payroll files. Follow the steps below to validate.")
+st.markdown("<div class='hero-title'>Payroll Hourly Validator</div>", unsafe_allow_html=True)
+st.markdown("<div class='hero-subtitle'>Automated, secure, and instant cross-validation for payroll files.</div>", unsafe_allow_html=True)
 
 st.divider()
 
-# --- STEP 1: UPLOAD FILES ---
-st.markdown("<p class='step-header'>STEP 1: Attach Files</p>", unsafe_allow_html=True)
+# --- STEP 1: FILE ATTACHMENTS ---
+st.markdown("<span class='step-badge'>STEP 1</span>", unsafe_allow_html=True)
+st.markdown("<div class='step-title'>Upload Source Data</div>", unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -263,35 +304,38 @@ with col2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 2: SECURITY & CONFIG ---
-st.markdown("<p class='step-header'>STEP 2: Security Key</p>", unsafe_allow_html=True)
+# --- STEP 2: CREDENTIALS ---
+st.markdown("<span class='step-badge'>STEP 2</span>", unsafe_allow_html=True)
+st.markdown("<div class='step-title'>File Security</div>", unsafe_allow_html=True)
+
 password = st.text_input(
-    "File Password",
+    "Excel Password",
     value="tp_paseo",
     type="password",
-    help="Enter password if your Excel files are encrypted."
+    help="Enter password if your source files are encrypted."
 )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 3: ACTION ---
-st.markdown("<p class='step-header'>STEP 3: Process & Download</p>", unsafe_allow_html=True)
+# --- STEP 3: RUN & DOWNLOAD ---
+st.markdown("<span class='step-badge'>STEP 3</span>", unsafe_allow_html=True)
+st.markdown("<div class='step-title'>Generate Report</div>", unsafe_allow_html=True)
 
-if st.button("START VALIDATION ⚡", type="primary"):
+if st.button("RUN VALIDATION ✨", type="primary"):
     if not main_file or not dr2_file:
-        st.error("⚠️ Missing File: Please attach both the Input File and Masterfile to proceed.")
+        st.error("Please upload both the Input File and Masterfile to proceed.")
     else:
-        with st.spinner("Validating records... Please wait..."):
+        with st.spinner("Analyzing files and generating validation report..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
-                st.success("✅ Validation Successful! Your file is ready for download.")
+                st.success("Validation completed successfully!")
                 
                 st.download_button(
-                    label="📥 DOWNLOAD VALIDATED REPORT (.XLSX)",
+                    label="📥 Download Validated Excel Report",
                     data=result_excel,
                     file_name="Hourly_Regular_Hours_Validated.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"❌ Processing Error: {str(e)}")
+                st.error(f"Processing Error: {str(e)}")
