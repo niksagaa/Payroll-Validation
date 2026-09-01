@@ -14,127 +14,137 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Modern SaaS Dashboard CSS with Custom Font, Colors & CSS Animations
+# Custom High-End Technical / Portfolio Dashboard Aesthetics CSS
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-    /* Global Typography & Font Family Override */
+    /* Global Typography Reset */
     html, body, [class*="css"], .stMarkdown, button, input {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-family: 'Space Grotesk', -apple-system, sans-serif !important;
+        background-color: #0A0A0C !important;
+        color: #E2E8F0 !important;
     }
 
-    /* Keyframe Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes pulseGlow {
-        0% {
-            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5);
-        }
-        70% {
-            box-shadow: 0 0 0 12px rgba(99, 102, 241, 0);
-        }
-        100% {
-            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-        }
-    }
-
-    /* Container Styling & Entrance Animation */
     .main .block-container {
-        padding-top: 2.5rem;
-        padding-bottom: 3.5rem;
-        max-width: 780px;
-        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        padding-top: 3rem;
+        padding-bottom: 4rem;
+        max-width: 820px;
     }
 
-    /* App Title & Subtitle Styling */
-    .app-header {
-        margin-bottom: 2rem;
+    /* Top Header Section */
+    .portfolio-tag {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.72rem;
+        letter-spacing: 1.5px;
+        color: #94A3B8;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
     }
-    
+
     .app-title {
-        font-size: 2.1rem;
-        font-weight: 800;
+        font-size: 2.2rem;
+        font-weight: 700;
         letter-spacing: -0.8px;
-        background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #FFFFFF;
         margin-bottom: 0.4rem;
     }
-    
+
     .app-subtitle {
-        font-size: 0.98rem;
-        color: #94A3B8;
-        font-weight: 400;
-        line-height: 1.5;
+        font-size: 0.95rem;
+        color: #8E8E93;
+        margin-bottom: 2rem;
     }
 
-    /* Section Labels */
-    .section-label {
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        color: #818CF8;
+    /* Technical Card Containers */
+    div[data-testid="stColumn"] {
+        background: #141417;
+        border: 1px solid #242429;
+        border-radius: 14px;
+        padding: 1.2rem;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    div[data-testid="stColumn"]:hover {
+        border-color: #3B82F6;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Mono Section Badges */
+    .mono-badge {
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 1px;
+        color: #3B82F6;
+        background: rgba(59, 130, 246, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        display: inline-block;
         margin-bottom: 0.8rem;
     }
 
-    /* Interactive File Upload Area Enhancements */
+    /* Streamlit Uploaders Overrides */
     [data-testid="stFileUploader"] {
-        border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: transparent !important;
+        border: 1px dashed #2E2E35 !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+        transition: border 0.2s ease;
     }
 
     [data-testid="stFileUploader"]:hover {
-        transform: translateY(-3px);
-        border-color: #6366F1 !important;
-        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
+        border-color: #3B82F6 !important;
     }
 
-    /* Action Button Animations */
+    /* Custom Inputs */
+    div[data-baseweb="input"] {
+        background-color: #141417 !important;
+        border: 1px solid #242429 !important;
+        border-radius: 8px !important;
+        color: #FFFFFF !important;
+    }
+
+    /* Action Buttons (High Contrast Minimalist Accent) */
     div.stButton > button:first-child {
         width: 100%;
         border-radius: 10px;
-        height: 3.3rem;
+        height: 3.4rem;
+        font-family: 'JetBrains Mono', monospace !important;
         font-weight: 700;
-        font-size: 1.02rem;
-        letter-spacing: 0.5px;
-        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        background: #FFFFFF;
         border: none;
-        color: #FFFFFF;
-        transition: all 0.25s ease;
-        animation: pulseGlow 2.5s infinite;
+        color: #0A0A0C;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
     }
 
     div.stButton > button:first-child:hover {
+        background: #E2E8F0;
         transform: translateY(-2px);
-        background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
-        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15);
     }
 
-    /* Download Button Specific Accent */
+    /* Download Button Styling */
     div[data-testid="stDownloadButton"] > button {
-        background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
-        border: none !important;
-        color: #FFFFFF !important;
+        background: #10B981 !important;
+        color: #000000 !important;
+        font-family: 'JetBrains Mono', monospace !important;
         font-weight: 700 !important;
-        height: 3.3rem !important;
+        height: 3.4rem !important;
         border-radius: 10px !important;
-        transition: all 0.25s ease !important;
+        border: none !important;
+        transition: all 0.2s ease !important;
     }
 
     div[data-testid="stDownloadButton"] > button:hover {
+        background: #059669 !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35) !important;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -169,7 +179,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Cannot open file. Please verify password or file format.")
+        raise ValueError("Cannot open file. Check password or file format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -337,64 +347,61 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     return output_stream
 
 # --- HEADER SECTION ---
-st.markdown("""
-    <div class="app-header">
-        <div class="app-title">Payroll Hourly Validator</div>
-        <div class="app-subtitle">Upload your Input File and Masterfile below to perform automated cross-validation.</div>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown('<div class="portfolio-tag">[ PAYROLL UTILITY // ENGINE v2.0 ]</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-title">Hourly Payroll Validator</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-subtitle">Automated ledger cross-validation system for non-technical teams.</div>', unsafe_allow_html=True)
 
-st.divider()
-
-# --- STEP 1: FILE UPLOADERS ---
-st.markdown('<div class="section-label">1. Source Files</div>', unsafe_allow_html=True)
-
+# --- STEP 1: FILE ATTACHMENTS ---
 col1, col2 = st.columns(2)
 
 with col1:
+    st.markdown('<div class="mono-badge">01. INPUT FILE</div>', unsafe_allow_html=True)
     main_file = st.file_uploader(
-        "UPLOAD INPUT FILE",
+        "Upload Input File",
         type=["xlsx", "xlsb", "xls"],
-        key="main_file_key"
+        key="main_file_key",
+        label_visibility="collapsed"
     )
 
 with col2:
+    st.markdown('<div class="mono-badge">02. MASTERFILE</div>', unsafe_allow_html=True)
     dr2_file = st.file_uploader(
-        "UPLOAD MASTERFILE",
+        "Upload Masterfile",
         type=["xlsx", "xlsb", "xls"],
-        key="dr2_file_key"
+        key="dr2_file_key",
+        label_visibility="collapsed"
     )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 2: SECURITY SETTINGS ---
-st.markdown('<div class="section-label">2. Security Settings</div>', unsafe_allow_html=True)
+# --- STEP 2: SECURITY CONFIG ---
+st.markdown('<div class="mono-badge">03. SECURITY KEY</div>', unsafe_allow_html=True)
 
 password = st.text_input(
     "File Password",
     value="tp_paseo",
     type="password",
-    help="Default password used for encrypted payroll files."
+    help="Decryption password for protected workbooks."
 )
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 3: PROCESS & ACTION ---
-if st.button("RUN VALIDATION ⚡", type="primary"):
+# --- STEP 3: EXECUTION ---
+if st.button("RUN VALIDATION ENGINE ⚡", type="primary"):
     if not main_file or not dr2_file:
-        st.error("Please attach both the Input File and Masterfile to continue.")
+        st.error("Please upload both required Excel files to begin.")
     else:
-        with st.spinner("Processing files and matching records... Please wait."):
+        with st.spinner("Executing cross-validation logic..."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
-                st.success("Validation completed! Click below to download your report.")
+                st.success("Validation completed successfully.")
                 
                 st.download_button(
-                    label="📥 DOWNLOAD VALIDATED REPORT (.XLSX)",
+                    label="DOWNLOAD VALIDATED REPORT (.XLSX)",
                     data=result_excel,
                     file_name="Hourly_Regular_Hours_Validated.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Error processing files: {str(e)}")
+                st.error(f"Execution Error: {str(e)}")
