@@ -154,35 +154,33 @@ st.markdown("""
         border: 1px solid #B4DEC9;
     }
 
-    /* CLEAN FIX FOR TEXT INPUT & PASSWORD FIELD */
-    div[data-baseweb="input"] {
+    /* ROBUST FIX FOR TEXT INPUT & PASSWORD FIELD BACKGROUND */
+    .stTextInput div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
+        background: #FFFFFF !important;
         border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
-        color: #0F382C !important;
     }
 
-    div[data-baseweb="input"]:focus-within {
+    .stTextInput div[data-baseweb="input"]:focus-within {
         border-color: #0F766E !important;
         box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15) !important;
     }
 
-    /* Ensure text inside input is readable and dark */
-    div[data-baseweb="input"] input {
+    .stTextInput input {
         color: #0F382C !important;
         font-weight: 600 !important;
         background-color: transparent !important;
         -webkit-text-fill-color: #0F382C !important;
     }
 
-    /* Target password visibility toggle buttons properly without duplication */
-    div[data-baseweb="input"] button {
+    /* Style password visibility icons properly */
+    .stTextInput div[data-baseweb="input"] button {
         background: transparent !important;
         border: none !important;
-        box-shadow: none !important;
     }
 
-    div[data-baseweb="input"] svg {
+    .stTextInput div[data-baseweb="input"] svg {
         fill: #0F766E !important;
         color: #0F766E !important;
     }
