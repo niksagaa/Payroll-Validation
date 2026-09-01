@@ -14,57 +14,127 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom Clean SaaS CSS (Light & Dark Mode Adaptive)
+# Modern SaaS Dashboard CSS with Custom Font, Colors & CSS Animations
 st.markdown("""
     <style>
-    /* Layout Adjustments */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    /* Global Typography & Font Family Override */
+    html, body, [class*="css"], .stMarkdown, button, input {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulseGlow {
+        0% {
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5);
+        }
+        70% {
+            box-shadow: 0 0 0 12px rgba(99, 102, 241, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        }
+    }
+
+    /* Container Styling & Entrance Animation */
     .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 3rem;
+        padding-top: 2.5rem;
+        padding-bottom: 3.5rem;
         max-width: 780px;
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Top Navigation / Title Area */
+    /* App Title & Subtitle Styling */
     .app-header {
-        margin-bottom: 1.5rem;
-    }
-    .app-title {
-        font-size: 1.8rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.2rem;
-    }
-    .app-subtitle {
-        font-size: 0.95rem;
-        opacity: 0.7;
-    }
-
-    /* Section Cards */
-    .section-card {
-        border-radius: 10px;
-        padding: 1.2rem;
-        margin-bottom: 1.2rem;
-        border: 1px solid rgba(128, 128, 128, 0.2);
+        margin-bottom: 2rem;
     }
     
+    .app-title {
+        font-size: 2.1rem;
+        font-weight: 800;
+        letter-spacing: -0.8px;
+        background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.4rem;
+    }
+    
+    .app-subtitle {
+        font-size: 0.98rem;
+        color: #94A3B8;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    /* Section Labels */
     .section-label {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 700;
-        letter-spacing: 0.6px;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
-        opacity: 0.6;
+        color: #818CF8;
         margin-bottom: 0.8rem;
     }
 
-    /* Primary Action Button */
+    /* Interactive File Upload Area Enhancements */
+    [data-testid="stFileUploader"] {
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-testid="stFileUploader"]:hover {
+        transform: translateY(-3px);
+        border-color: #6366F1 !important;
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Action Button Animations */
     div.stButton > button:first-child {
         width: 100%;
-        border-radius: 8px;
-        height: 3.2rem;
+        border-radius: 10px;
+        height: 3.3rem;
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 1.02rem;
         letter-spacing: 0.5px;
-        transition: all 0.2s ease;
+        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+        border: none;
+        color: #FFFFFF;
+        transition: all 0.25s ease;
+        animation: pulseGlow 2.5s infinite;
+    }
+
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Download Button Specific Accent */
+    div[data-testid="stDownloadButton"] > button {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+        border: none !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        height: 3.3rem !important;
+        border-radius: 10px !important;
+        transition: all 0.25s ease !important;
+    }
+
+    div[data-testid="stDownloadButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35) !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -80,7 +150,7 @@ COLUMN_MAPPINGS = [
 ]
 
 def load_encrypted_excel(file_bytes, password, sheet_identifier):
-    """Decrypts and loads password-protected Excel files safely in memory."""
+    """Decrypts and loads Excel files safely in memory."""
     decrypted_stream = io.BytesIO()
     office_file = msoffcrypto.OfficeFile(file_bytes)
     office_file.load_key(password=password)
@@ -99,7 +169,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Cannot open encrypted file. Check file format or password.")
+        raise ValueError("Cannot open file. Please verify password or file format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -113,7 +183,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def find_matching_column(df_columns, target_name):
-    """Smart column identifier."""
+    """Smart column identification."""
     cols_clean = {str(c).strip().lower(): c for c in df_columns}
     target_clean = target_name.strip().lower()
 
@@ -132,7 +202,7 @@ def find_matching_column(df_columns, target_name):
     return None
 
 def clean_id(val):
-    """Normalizes Employee IDs."""
+    """Cleans up Employee IDs."""
     if pd.isna(val):
         return ""
     val_str = str(val).strip()
@@ -141,7 +211,7 @@ def clean_id(val):
     return val_str.replace(" ", "")
 
 def process_validation(main_bytes, dr2_bytes, pwd):
-    """Core validation logic."""
+    """Core validation processing."""
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
@@ -266,7 +336,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     output_stream.seek(0)
     return output_stream
 
-# --- HEADER AREA ---
+# --- HEADER SECTION ---
 st.markdown("""
     <div class="app-header">
         <div class="app-title">Payroll Hourly Validator</div>
@@ -276,7 +346,7 @@ st.markdown("""
 
 st.divider()
 
-# --- STEP 1: FILE ATTACHMENTS ---
+# --- STEP 1: FILE UPLOADERS ---
 st.markdown('<div class="section-label">1. Source Files</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
@@ -297,7 +367,7 @@ with col2:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 2: SETTINGS ---
+# --- STEP 2: SECURITY SETTINGS ---
 st.markdown('<div class="section-label">2. Security Settings</div>', unsafe_allow_html=True)
 
 password = st.text_input(
@@ -309,15 +379,15 @@ password = st.text_input(
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- STEP 3: ACTION & RESULT ---
+# --- STEP 3: PROCESS & ACTION ---
 if st.button("RUN VALIDATION ⚡", type="primary"):
     if not main_file or not dr2_file:
-        st.error("Please upload both the Input File and Masterfile before starting validation.")
+        st.error("Please attach both the Input File and Masterfile to continue.")
     else:
-        with st.spinner("Comparing records and formatting report... Please wait."):
+        with st.spinner("Processing files and matching records... Please wait."):
             try:
                 result_excel = process_validation(main_file, dr2_file, password)
-                st.success("Validation complete! Click below to download the updated report.")
+                st.success("Validation completed! Click below to download your report.")
                 
                 st.download_button(
                     label="📥 DOWNLOAD VALIDATED REPORT (.XLSX)",
