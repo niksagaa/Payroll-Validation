@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED CLEAN SINGLE-CARD LAYOUT & INSTRUCTIONS HIDE CSS ---
+# --- REVISED CLEAN CSS FOR INPUTS & CARD ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -37,6 +37,16 @@ st.markdown("""
     .main .block-container {
         padding: 3rem 1.5rem !important;
         max-width: 780px !important;
+    }
+
+    /* FORM CARD BACKGROUND COLOR & BORDER */
+    [data-testid="stForm"], div[class*="st-key-"] > div[data-testid="stVerticalBlockBorderWrapper"],
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #F3F8F5 !important;
+        border: 1.5px solid #C5E1D4 !important;
+        border-radius: 16px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 4px 20px rgba(15, 118, 110, 0.05) !important;
     }
 
     /* Header Styling */
@@ -79,7 +89,7 @@ st.markdown("""
         color: #0F766E;
         margin-top: 0.5rem;
         margin-bottom: 1rem;
-        border-bottom: 1.5px solid #F0F5F2;
+        border-bottom: 1.5px solid #DDF0E7;
         padding-bottom: 8px;
     }
 
@@ -91,9 +101,9 @@ st.markdown("""
         display: block;
     }
 
-    /* UPLOADER LIGHT STYLING & REMOVING BLACK BUTTONS */
+    /* UPLOADER LIGHT STYLING */
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #F6FAF7 !important;
+        background-color: #FFFFFF !important;
         border: 2px dashed #0F766E !important;
         border-radius: 12px !important;
         padding: 1.2rem 1rem !important;
@@ -101,7 +111,7 @@ st.markdown("""
 
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #0D9488 !important;
-        background-color: #E8F4EE !important;
+        background-color: #EBF7F2 !important;
     }
 
     [data-testid="stFileUploaderDropzone"] div,
@@ -144,42 +154,50 @@ st.markdown("""
         border: 1px solid #B4DEC9;
     }
 
-    /* LIGHT THEME FOR INPUT & PASSWORD FIELD */
+    /* CLEAN FIX FOR TEXT INPUT & PASSWORD FIELD */
     div[data-baseweb="input"] {
-        background-color: #F6FAF7 !important;
+        background-color: #FFFFFF !important;
         border: 1.5px solid #A8D1BD !important;
         border-radius: 8px !important;
-        height: 2.8rem !important;
+        color: #0F382C !important;
     }
 
     div[data-baseweb="input"]:focus-within {
         border-color: #0F766E !important;
-        background-color: #FFFFFF !important;
         box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15) !important;
     }
 
+    /* Ensure text inside input is readable and dark */
     div[data-baseweb="input"] input {
         color: #0F382C !important;
         font-weight: 600 !important;
         background-color: transparent !important;
+        -webkit-text-fill-color: #0F382C !important;
     }
 
-    div[data-baseweb="input"] button,
-    div[data-baseweb="input"] svg,
-    div[data-baseweb="input"] span {
-        color: #0F766E !important;
+    /* Target password visibility toggle buttons properly without duplication */
+    div[data-baseweb="input"] button {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    div[data-baseweb="input"] svg {
         fill: #0F766E !important;
+        color: #0F766E !important;
     }
 
     /* HIDE "PRESS ENTER TO APPLY" INSTRUCTION TEXT COMPLETELY */
+    [data-testid="stInputInstructions"], 
     div[data-testid="stInputInstructions"], 
     small[data-testid="stInputInstructions"] {
         display: none !important;
         visibility: hidden !important;
         height: 0px !important;
+        opacity: 0 !important;
     }
 
-    /* STREAMLIT PROGRESS BAR STYLING MATCHING EMERALD UI */
+    /* STREAMLIT PROGRESS BAR STYLING */
     div[data-testid="stProgress"] > div > div > div {
         background-color: #0F766E !important;
     }
@@ -343,7 +361,6 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_text):
-    # Step 1: File Parsing & Decryption
     status_text.markdown("🔒 **Decrypting and reading uploaded Excel files...**")
     progress_bar.progress(20)
     time.sleep(0.3)
@@ -354,7 +371,6 @@ def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_te
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
-    # Step 2: Mapping Keys & Cleaning Data
     status_text.markdown("📑 **Matching Employee IDs and structure...**")
     progress_bar.progress(45)
     time.sleep(0.3)
@@ -368,7 +384,6 @@ def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_te
     final_cols = []
     display_header_map = {}
 
-    # Step 3: Calculation & Rule Validation
     status_text.markdown("⚖️ **Calculating variances and applying validation rules...**")
     progress_bar.progress(70)
     time.sleep(0.3)
@@ -422,7 +437,6 @@ def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_te
 
     df_final = df_main[final_cols]
 
-    # Step 4: Formatting Final Excel Report
     status_text.markdown("🎨 **Generating styled Excel report...**")
     progress_bar.progress(90)
     time.sleep(0.3)
@@ -511,7 +525,7 @@ if "uploader_key_2" not in st.session_state:
 if "pwd_value" not in st.session_state:
     st.session_state["pwd_value"] = ""
 
-# --- SINGLE FORM CARD (NATIVE STREAMLIT FORM CONTAINER WITH CSS BORDER) ---
+# --- SINGLE FORM CARD ---
 form_card = st.container(border=True)
 
 with form_card:
@@ -584,7 +598,6 @@ if start_btn:
     else:
         st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
         
-        # Placeholders para sa Progress Bar at Real-time Status Text
         progress_bar = st.progress(0)
         status_text = st.empty()
 
