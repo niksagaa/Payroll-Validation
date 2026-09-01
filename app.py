@@ -6,10 +6,13 @@ import streamlit as st
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+# Configure Streamlit page layout and title
 st.set_page_config(page_title="Payroll Hourly Validator", layout="centered")
 
+# Standard Accounting Number Format for Excel output
 ACCOUNTING_FORMAT = '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'
 
+# Header mappings between Main File columns and DR2 File columns
 COLUMN_MAPPINGS = [
     ("Sum of Regular Hours", "Salaries and Wages (Units)"),
     ("Vacation Hours", "Vacation Leave (Hours)"),
@@ -19,6 +22,10 @@ COLUMN_MAPPINGS = [
 ]
 
 def load_encrypted_excel(file_bytes, password, sheet_identifier):
+    """
+    Decrypts password-protected Excel files in-memory using msoffcrypto-tool,
+    then attempts to parse them with pandas using available engines.
+    """
     decrypted_stream = io.BytesIO()
     office_file = msoffcrypto.OfficeFile(file_bytes)
     office_file.load_key(password=password)
@@ -27,6 +34,8 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     decrypted_stream.seek(0)
     engines = ["openpyxl", "pyxlsb", "xlrd"]
     excel_file = None
+    
+    # Try different engines to handle .xlsx, .xlsb, or .xls formats
     for engine in engines:
         try:
             decrypted_stream.seek(0)
@@ -36,8 +45,9 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Hindi ma-open ang encrypted Excel file.")
+        raise ValueError("Failed to open the encrypted Excel file. Please check the file format or password.")
 
+    # Locate target sheet by index or name (case-insensitive)
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
     else:
@@ -50,6 +60,9 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     return df
 
 def find_matching_column(df_columns, target_name):
+    """
+    Flexible column matcher that handles case sensitivity and optional 'Sum of ' prefixes.
+    """
     cols_clean = {str(c).strip().lower(): c for c in df_columns}
     target_clean = target_name.strip().lower()
 
@@ -68,6 +81,9 @@ def find_matching_column(df_columns, target_name):
     return None
 
 def clean_id(val):
+    """
+    Normalizes Employee IDs into clean strings by removing spaces and trailing floats (.0).
+    """
     if pd.isna(val):
         return ""
     val_str = str(val).strip()
@@ -76,18 +92,26 @@ def clean_id(val):
     return val_str.replace(" ", "")
 
 def process_validation(main_bytes, dr2_bytes, pwd):
+    """
+    Core payroll engine: compares hourly records between Main File and DR2 File,
+    applies business logic rules, and generates a formatted Excel file stream.
+    """
+    # Load decrypted files into DataFrames
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
+    # Resolve Employee ID column names
     actual_key_main = find_matching_column(df_main.columns, "Row Labels") or "Row Labels"
     actual_key_dr2 = find_matching_column(df_dr2.columns, "ID") or "ID"
 
+    # Clean Employee IDs for accurate lookup matching
     df_main[actual_key_main] = df_main[actual_key_main].apply(clean_id)
     df_dr2[actual_key_dr2] = df_dr2[actual_key_dr2].apply(clean_id)
 
     final_cols = []
     display_header_map = {}
 
+    # Iterate through Main File columns and insert DR2, CHECKER, and REMARKS columns
     for col in df_main.columns:
         final_cols.append(col)
         display_header_map[col] = col
@@ -98,6 +122,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
             main_target, dr2_target = mapping
             dr2_col_match = find_matching_column(df_dr2.columns, dr2_target)
 
+            # Define internal temporary column names
             dr2_val_col = f"__DR2_{col}"
             chk_col = f"__CHK_{col}"
             rem_col = f"__REM_{col}"
@@ -107,10 +132,12 @@ def process_validation(main_bytes, dr2_bytes, pwd):
             display_header_map[chk_col] = "CHECKER"
             display_header_map[rem_col] = "REMARKS"
 
+            # Sum values per Employee ID from DR2 File
             dr2_grouped = df_dr2.groupby(actual_key_dr2)[dr2_col_match].sum().to_dict() if dr2_col_match else {}
 
             dr2_vals, chk_vals, rem_vals = [], [], []
 
+            # Compare Main File vs DR2 File row by row
             for _, row in df_main.iterrows():
                 emp_id = row[actual_key_main]
                 main_val = pd.to_numeric(row[col], errors='coerce') or 0.0
@@ -120,6 +147,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
                     diff = main_val - dr2_val
 
                     dr2_vals.append(dr2_val)
+                    # Variance check
                     if abs(diff) < 0.001:
                         chk_vals.append("-")
                         rem_vals.append("OK; NO VARIANCE")
@@ -137,6 +165,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
 
     df_final = df_main[final_cols]
 
+    # Write processed DataFrame into openpyxl for custom Excel styling
     output_stream = io.BytesIO()
     writer = pd.ExcelWriter(output_stream, engine="openpyxl")
     df_final.to_excel(writer, sheet_name="Validated", index=False, startrow=0)
@@ -144,6 +173,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     wb = writer.book
     ws = writer.sheets["Validated"]
 
+    # Border definitions
     thin_border = Border(
         left=Side(style='thin', color='D3D3D3'),
         right=Side(style='thin', color='D3D3D3'),
@@ -151,6 +181,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
         bottom=Side(style='thin', color='D3D3D3')
     )
 
+    # Format Header Row (Blue for original headers, Gold for validation headers)
     header_display_names = [display_header_map[col] for col in final_cols]
     for col_idx, text in enumerate(header_display_names, 1):
         cell = ws.cell(row=1, column=col_idx)
@@ -168,6 +199,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
 
     key_col_index = final_cols.index(actual_key_main) + 1
 
+    # Format Data Cells (Accounting format for numbers, Text format for IDs)
     for row_idx in range(2, ws.max_row + 1):
         for col_idx in range(1, ws.max_column + 1):
             cell = ws.cell(row=row_idx, column=col_idx)
@@ -185,6 +217,7 @@ def process_validation(main_bytes, dr2_bytes, pwd):
             elif cell.value in ["-", "#N/A"]:
                 cell.alignment = Alignment(horizontal="center", vertical="center")
 
+    # Auto-fit column widths based on content length
     for col in ws.columns:
         max_len = 0
         col_letter = get_column_letter(col[0].column)
@@ -200,10 +233,11 @@ def process_validation(main_bytes, dr2_bytes, pwd):
     output_stream.seek(0)
     return output_stream
 
-# UI Layout
+# --- Streamlit Web Interface ---
 st.title("📊 Hourly Payroll Validation Tool")
 st.write("Upload your Main File and DR2 File below to automatically generate the validation report.")
 
+# Upload widgets
 col1, col2 = st.columns(2)
 with col1:
     main_file = st.file_uploader("Upload Main File (.xlsx)", type=["xlsx", "xlsb", "xls"])
@@ -212,9 +246,10 @@ with col2:
 
 password = st.text_input("Excel Password", value="tp_paseo", type="password")
 
+# Trigger validation process
 if st.button("RUN VALIDATION", type="primary"):
     if not main_file or not dr2_file:
-        st.warning("Paki-upload muna ang Main File at DR2 File.")
+        st.warning("Please upload both the Main File and DR2 File before running validation.")
     else:
         with st.spinner("Processing files... Please wait..."):
             try:
