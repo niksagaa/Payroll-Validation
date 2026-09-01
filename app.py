@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- CLEAN & UNIFIED ZEN UI (CSS FIX) ---
+# --- STRICT MOCKUP MATCHING CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -25,18 +25,23 @@ st.markdown("""
         display: none !important;
     }
 
-    /* Global Canvas */
+    /* Outer Background */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        background-color: #F3F6F4 !important;
-        color: #1A2E26 !important;
+        background-color: #E2ECE6 !important;
+        color: #12231C !important;
     }
 
-    /* Centralized Card Wrapper */
+    /* White Center Card Container */
     .main .block-container {
-        padding-top: 2.5rem !important;
-        padding-bottom: 3rem !important;
+        padding: 2.5rem 3rem !important;
         max-width: 680px !important;
+        background-color: #F8FAF8 !important;
+        border: 1px solid #D5E2DA !important;
+        border-radius: 18px !important;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.04) !important;
+        margin-top: 2rem !important;
+        margin-bottom: 2rem !important;
     }
 
     /* Header Styling */
@@ -47,12 +52,12 @@ st.markdown("""
 
     .zen-badge {
         display: inline-block;
-        background-color: #E2ECE6;
-        color: #2E5A44;
+        background-color: #D3E4DB;
+        color: #234735;
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.8px;
-        padding: 5px 14px;
+        padding: 6px 16px;
         border-radius: 20px;
         margin-bottom: 0.8rem;
     }
@@ -62,116 +67,175 @@ st.markdown("""
         font-weight: 700;
         color: #12231C;
         letter-spacing: -0.5px;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.4rem;
     }
 
     .zen-subtitle {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         color: #5A6E65;
     }
 
-    /* Input Field Labels */
-    .field-label {
-        font-size: 0.88rem;
+    /* Section Titles */
+    .section-title {
+        font-size: 0.95rem;
         font-weight: 700;
-        color: #1E3E2F;
-        margin-bottom: 0.4rem;
-        display: block;
+        color: #12231C;
+        margin-top: 1.5rem;
+        margin-bottom: 0.8rem;
     }
 
-    /* Streamlit File Uploader Overrides (Fix Text Contrast & Button) */
+    /* File Uploader styling */
     [data-testid="stFileUploader"] {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0rem;
     }
 
     [data-testid="stFileUploaderDropzone"] {
-        background-color: #FFFFFF !important;
-        border: 1.5px dashed #C2D3C9 !important;
+        background-color: #FAFCFA !important;
+        border: 1px dashed #C2D3C9 !important;
         border-radius: 12px !important;
-        padding: 1rem !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+        padding: 0.8rem !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #2E5A44 !important;
-        background-color: #FAFCFA !important;
+        background-color: #F0F5F2 !important;
     }
 
-    /* Fix invisible text in File Uploader */
     [data-testid="stFileUploaderDropzone"] div,
     [data-testid="stFileUploaderDropzone"] span,
     [data-testid="stFileUploaderDropzone"] small,
     [data-testid="stFileUploaderDropzone"] p {
-        color: #2E5A44 !important;
+        color: #4A6356 !important;
+        font-size: 0.8rem !important;
     }
 
     [data-testid="stFileUploaderDropzone"] button {
-        background-color: #2E5A44 !important;
-        color: #FFFFFF !important;
-        border: none !important;
+        background-color: #E2ECE6 !important;
+        color: #2E5A44 !important;
+        border: 1px solid #C2D3C9 !important;
         border-radius: 8px !important;
         font-weight: 600 !important;
+        font-size: 0.8rem !important;
     }
 
-    /* Password Input Fix */
+    /* Status Box below file uploader */
+    .file-status-box {
+        background-color: #EEF3F0;
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        color: #2E5A44;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 6px;
+        border: 1px solid #D5E2DA;
+    }
+
+    /* Decryption Password Field - Clean White Styling (No Black Background) */
+    .field-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #12231C;
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
     div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
         border: 1.5px solid #C2D3C9 !important;
         border-radius: 12px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
-    }
-
-    div[data-baseweb="input"] input {
-        color: #1A2E26 !important;
-        background-color: transparent !important;
+        height: 2.8rem !important;
+        box-shadow: none !important;
     }
 
     div[data-baseweb="input"]:focus-within {
         border-color: #2E5A44 !important;
     }
 
-    /* Full-Width Buttons */
-    div.stButton > button, [data-testid="stDownloadButton"] > button {
-        width: 100% !important;
-        border-radius: 12px !important;
-        height: 3.4rem !important;
-        font-weight: 700 !important;
-        font-size: 0.98rem !important;
-        background: #2E5A44 !important;
-        border: none !important;
-        color: #FFFFFF !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 4px 14px rgba(46, 90, 68, 0.2) !important;
-        margin-top: 0.5rem;
+    div[data-baseweb="input"] input {
+        color: #12231C !important;
+        background-color: transparent !important;
     }
 
-    div.stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
-        background: #234735 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 18px rgba(46, 90, 68, 0.28) !important;
+    /* Password Eye Icon color fix */
+    div[data-baseweb="input"] button {
+        background-color: transparent !important;
+        color: #5A6E65 !important;
     }
 
-    /* Success Card */
-    .success-card {
-        background-color: #FFFFFF;
-        border: 1.5px solid #2E5A44;
-        border-radius: 12px;
-        padding: 1.2rem;
-        text-align: center;
-        margin-top: 1rem;
+    /* Progress Pipeline Steps */
+    .pipeline-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.8rem;
         margin-bottom: 1rem;
-        box-shadow: 0 4px 12px rgba(46, 90, 68, 0.06);
+        padding: 0 10px;
     }
 
-    .success-title {
-        font-weight: 700;
-        font-size: 1.05rem;
-        color: #2E5A44;
+    .pipeline-step {
+        text-align: center;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #4A6356;
+        position: relative;
+        flex: 1;
     }
 
-    .success-desc {
-        font-size: 0.85rem;
-        color: #5A6E65;
+    .pipeline-icon {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    /* Progress Bar */
+    .stProgress > div > div > div > div {
+        background-color: #2E5A44 !important;
+    }
+
+    /* Bottom Action Buttons */
+    .action-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 1.5rem;
+    }
+
+    div.stButton > button {
+        border-radius: 10px !important;
+        height: 2.8rem !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        border: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    /* Primary Submit Button */
+    div.stButton > button[kind="primary"] {
+        background: #234735 !important;
+        color: #FFFFFF !important;
+    }
+
+    div.stButton > button[kind="primary"]:hover {
+        background: #173124 !important;
+    }
+
+    /* Secondary Clear Button */
+    div.stButton > button[kind="secondary"] {
+        background: #E2ECE6 !important;
+        color: #4A6356 !important;
+    }
+
+    div.stButton > button[kind="secondary"]:hover {
+        background: #D3E4DB !important;
+    }
+
+    /* Footer text */
+    .footer-text {
+        text-align: center;
+        font-size: 0.72rem;
+        color: #8A9E94;
+        margin-top: 1.8rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -236,7 +300,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Hindi mabuksan ang Excel stream. Suriin ang file format.")
+        raise ValueError("Hindi mabuksan ang Excel file structure.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -374,7 +438,7 @@ def process_validation(main_file_obj, dr2_file_obj, pwd):
     output_stream.seek(0)
     return output_stream
 
-# --- HEADER ---
+# --- HEADER SECTION ---
 st.markdown("""
     <div class="zen-header">
         <div class="zen-badge">🌿 AUTOMATED VALIDATION WORKSPACE</div>
@@ -383,52 +447,89 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- FORM INPUTS (Side-by-Side Uploader inside centered card) ---
+# --- 1. SELECT SOURCE FILES ---
+st.markdown('<div class="section-title">1. Select Source Files</div>', unsafe_allow_html=True)
+
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown('<span class="field-label">1. Input File</span>', unsafe_allow_html=True)
     main_file = st.file_uploader(
-        "1. Input File",
+        "Input File Ledger",
         type=["xlsx", "xlsb", "xls"],
-        key="main_file_key",
-        label_visibility="collapsed"
+        key="main_file_key"
     )
+    if main_file:
+        st.markdown(f"""
+            <div class="file-status-box">
+                <span>📄 {main_file.name}</span>
+                <span>✓</span>
+            </div>
+        """, unsafe_allow_html=True)
 
 with col2:
-    st.markdown('<span class="field-label">2. Masterfile</span>', unsafe_allow_html=True)
     dr2_file = st.file_uploader(
-        "2. Masterfile",
+        "Masterfile",
         type=["xlsx", "xlsb", "xls"],
-        key="dr2_file_key",
-        label_visibility="collapsed"
+        key="dr2_file_key"
     )
+    if dr2_file:
+        st.markdown(f"""
+            <div class="file-status-box">
+                <span>📄 {dr2_file.name}</span>
+                <span>✓</span>
+            </div>
+        """, unsafe_allow_html=True)
 
-st.markdown('<span class="field-label">3. Decryption Password</span>', unsafe_allow_html=True)
+# --- 2. PROVIDE ACCESS AND SECURE ---
+st.markdown('<div class="section-title">2. Provide Access and Secure</div>', unsafe_allow_html=True)
+
+st.markdown('<span class="field-label">Decryption Password</span>', unsafe_allow_html=True)
 password = st.text_input(
-    "3. Decryption Password",
+    "Decryption Password",
     value="tp_paseo",
     type="password",
     label_visibility="collapsed"
 )
 
-# --- ACTION & EXECUTION ---
-if st.button("Start Validation Engine 🌿", type="primary"):
+# --- PIPELINE STATUS ICONS ---
+st.markdown("""
+    <div class="pipeline-container">
+        <div class="pipeline-step"><span class="pipeline-icon">📄</span>File Parsing</div>
+        <div class="pipeline-step"><span class="pipeline-icon">📑</span>Rule Application</div>
+        <div class="pipeline-step"><span class="pipeline-icon">⚖️</span>Anomaly Detection</div>
+        <div class="pipeline-step"><span class="pipeline-icon">🛡️</span>Decryption Check</div>
+    </div>
+""", unsafe_allow_html=True)
+
+# Progress Bar
+progress_bar = st.progress(0)
+
+# --- ACTIONS & BUTTONS ---
+btn_col1, btn_col2 = st.columns([3, 1])
+
+with btn_col1:
+    start_btn = st.button("Start Validation Engine 🌿", type="primary", use_container_width=True)
+
+with btn_col2:
+    clear_btn = st.button("Clear Form", type="secondary", use_container_width=True)
+
+if clear_btn:
+    st.rerun()
+
+if start_btn:
     if not main_file or not dr2_file:
-        st.warning("Pakiupload ang Input File at Masterfile para magsimula.")
+        st.warning("Paki-upload ang Input File at Masterfile para magsimula.")
     elif not password:
         st.warning("Pakilagay ang decryption password.")
     else:
+        progress_bar.progress(35)
         with st.spinner("Reconciling payroll records..."):
             try:
+                progress_bar.progress(70)
                 result_excel = process_validation(main_file, dr2_file, password)
+                progress_bar.progress(100)
                 
-                st.markdown("""
-                    <div class="success-card">
-                        <div class="success-title">Validation Successful</div>
-                        <div class="success-desc">All calculations match. Your report is formatted and ready for download.</div>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.success("Validation Successful! Ready for download.")
                 
                 st.download_button(
                     label="Download Validated Report (.xlsx)",
@@ -438,4 +539,10 @@ if st.button("Start Validation Engine 🌿", type="primary"):
                     use_container_width=True
                 )
             except Exception as e:
+                progress_bar.progress(0)
                 st.error(f"Error: {str(e)}")
+
+# --- FOOTER ---
+st.markdown("""
+    <div class="footer-text">Powered by Accounting Automation Engine</div>
+""", unsafe_allow_html=True)
