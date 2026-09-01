@@ -2,12 +2,12 @@ import io
 import os
 import msoffcrypto
 import pandas as pd
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+import streamlit as st
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-# Standard Excel Accounting Format
+st.set_page_config(page_title="Payroll Hourly Validator", layout="centered")
+
 ACCOUNTING_FORMAT = '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'
 
 COLUMN_MAPPINGS = [
@@ -18,12 +18,11 @@ COLUMN_MAPPINGS = [
     ("Sum of Rest Day Hours", "Restday OT (Hours)"),
 ]
 
-def load_encrypted_excel(file_path, password, sheet_identifier):
+def load_encrypted_excel(file_bytes, password, sheet_identifier):
     decrypted_stream = io.BytesIO()
-    with open(file_path, "rb") as f_in:
-        office_file = msoffcrypto.OfficeFile(f_in)
-        office_file.load_key(password=password)
-        office_file.decrypt(decrypted_stream)
+    office_file = msoffcrypto.OfficeFile(file_bytes)
+    office_file.load_key(password=password)
+    office_file.decrypt(decrypted_stream)
     
     decrypted_stream.seek(0)
     engines = ["openpyxl", "pyxlsb", "xlrd"]
@@ -37,7 +36,7 @@ def load_encrypted_excel(file_path, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError(f"Hindi ma-open ang file: {os.path.basename(file_path)}")
+        raise ValueError("Hindi ma-open ang encrypted Excel file.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -76,9 +75,9 @@ def clean_id(val):
         val_str = val_str[:-2]
     return val_str.replace(" ", "")
 
-def process_validation(main_path, dr2_path, pwd_main, pwd_dr2, output_path):
-    df_main = load_encrypted_excel(main_path, pwd_main, "Hourly Checker")
-    df_dr2 = load_encrypted_excel(dr2_path, pwd_dr2, 0)
+def process_validation(main_bytes, dr2_bytes, pwd):
+    df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
+    df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
 
     actual_key_main = find_matching_column(df_main.columns, "Row Labels") or "Row Labels"
     actual_key_dr2 = find_matching_column(df_dr2.columns, "ID") or "ID"
@@ -138,7 +137,8 @@ def process_validation(main_path, dr2_path, pwd_main, pwd_dr2, output_path):
 
     df_final = df_main[final_cols]
 
-    writer = pd.ExcelWriter(output_path, engine="openpyxl")
+    output_stream = io.BytesIO()
+    writer = pd.ExcelWriter(output_stream, engine="openpyxl")
     df_final.to_excel(writer, sheet_name="Validated", index=False, startrow=0)
     
     wb = writer.book
@@ -197,93 +197,34 @@ def process_validation(main_path, dr2_path, pwd_main, pwd_dr2, output_path):
         ws.column_dimensions[col_letter].width = max(max_len + 5, 12)
 
     writer.close()
+    output_stream.seek(0)
+    return output_stream
 
-# ==========================================
-# TKINTER GUI INTERFACE
-# ==========================================
-class App:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Payroll Hourly Validator Tool")
-        self.root.geometry("520x360")
-        self.root.resizable(False, False)
+# UI Layout
+st.title("📊 Hourly Payroll Validation Tool")
+st.write("Upload your Main File and DR2 File below to automatically generate the validation report.")
 
-        # Styling
-        style = ttk.Style()
-        style.theme_use('clam')
+col1, col2 = st.columns(2)
+with col1:
+    main_file = st.file_uploader("Upload Main File (.xlsx)", type=["xlsx", "xlsb", "xls"])
+with col2:
+    dr2_file = st.file_uploader("Upload DR2 File (.xlsx)", type=["xlsx", "xlsb", "xls"])
 
-        # Title
-        title_label = tk.Label(root, text="Hourly Regular Hours Validator", font=("Calibri", 14, "bold"), fg="#1F4E78")
-        title_label.pack(pady=10)
+password = st.text_input("Excel Password", value="tp_paseo", type="password")
 
-        # Frame File Inputs
-        frame = tk.Frame(root, padx=10, pady=10)
-        frame.pack(fill="x", padx=15)
-
-        # Main File
-        tk.Label(frame, text="Main File (.xlsx):", font=("Calibri", 10, "bold")).grid(row=0, column=0, sticky="w", pady=5)
-        self.entry_main = ttk.Entry(frame, width=38)
-        self.entry_main.grid(row=0, column=1, padx=5)
-        ttk.Button(frame, text="Browse", command=self.browse_main).grid(row=0, column=2)
-
-        # DR2 File
-        tk.Label(frame, text="DR2 File (.xlsx):", font=("Calibri", 10, "bold")).grid(row=1, column=0, sticky="w", pady=5)
-        self.entry_dr2 = ttk.Entry(frame, width=38)
-        self.entry_dr2.grid(row=1, column=1, padx=5)
-        ttk.Button(frame, text="Browse", command=self.browse_dr2).grid(row=1, column=2)
-
-        # Passwords
-        tk.Label(frame, text="Password:", font=("Calibri", 10)).grid(row=2, column=0, sticky="w", pady=5)
-        self.entry_pwd = ttk.Entry(frame, width=38, show="*")
-        self.entry_pwd.insert(0, "tp_paseo")
-        self.entry_pwd.grid(row=2, column=1, padx=5)
-
-        # Output Button
-        self.btn_run = tk.Button(root, text="RUN VALIDATION", font=("Calibri", 11, "bold"), bg="#1F4E78", fg="white", activebackground="#153754", activeforeground="white", height=2, command=self.run)
-        self.btn_run.pack(fill="x", padx=25, pady=20)
-
-        # Status Label
-        self.lbl_status = tk.Label(root, text="Ready", font=("Calibri", 9, "italic"), fg="gray")
-        self.lbl_status.pack()
-
-    def browse_main(self):
-        filename = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx *.xlsb *.xls")])
-        if filename:
-            self.entry_main.delete(0, tk.END)
-            self.entry_main.insert(0, filename)
-
-    def browse_dr2(self):
-        filename = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx *.xlsb *.xls")])
-        if filename:
-            self.entry_dr2.delete(0, tk.END)
-            self.entry_dr2.insert(0, filename)
-
-    def run(self):
-        main_f = self.entry_main.get().strip()
-        dr2_f = self.entry_dr2.get().strip()
-        pwd = self.entry_pwd.get().strip()
-
-        if not main_f or not dr2_f:
-            messagebox.showwarning("Incomplete", "Paki-select muna ang Main File at DR2 File.")
-            return
-
-        out_path = filedialog.asksaveasfilename(defaultextension=".xlsx", initialfile="Hourly_Regular_Hours_Validated.xlsx", filetypes=[("Excel Files", "*.xlsx")])
-        if not out_path:
-            return
-
-        try:
-            self.lbl_status.config(text="Processing... Please wait...", fg="blue")
-            self.root.update()
-
-            process_validation(main_f, dr2_f, pwd, pwd, out_path)
-
-            self.lbl_status.config(text="Validation Complete!", fg="green")
-            messagebox.showinfo("Success", f"Done! Saved file to:\n{out_path}")
-        except Exception as e:
-            self.lbl_status.config(text="Error occurred", fg="red")
-            messagebox.showerror("Error", f"Nagka-error habang nag-va-validate:\n{str(e)}")
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
+if st.button("RUN VALIDATION", type="primary"):
+    if not main_file or not dr2_file:
+        st.warning("Paki-upload muna ang Main File at DR2 File.")
+    else:
+        with st.spinner("Processing files... Please wait..."):
+            try:
+                result_excel = process_validation(main_file, dr2_file, password)
+                st.success("Validation Complete!")
+                st.download_button(
+                    label="📥 Download Validated Excel Report",
+                    data=result_excel,
+                    file_name="Hourly_Regular_Hours_Validated.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            except Exception as e:
+                st.error(f"Error occurred during validation: {str(e)}")
