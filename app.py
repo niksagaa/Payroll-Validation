@@ -10,30 +10,33 @@ from openpyxl.utils import get_column_letter
 st.set_page_config(
     page_title="Payroll Hours Validator",
     page_icon="🌿",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# --- MODERN UI STYLING (CSS) ---
+# --- CLEAN & UNIFIED ZEN UI (CSS FIX) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
+    /* Hide Streamlit Chrome */
     #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
         visibility: hidden !important;
         display: none !important;
     }
 
+    /* Global Canvas */
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        background: #F4F6F3 !important;
+        background-color: #F3F6F4 !important;
         color: #1A2E26 !important;
     }
 
+    /* Centralized Card Wrapper */
     .main .block-container {
-        padding-top: 2rem !important;
+        padding-top: 2.5rem !important;
         padding-bottom: 3rem !important;
-        max-width: 1000px;
+        max-width: 680px !important;
     }
 
     /* Header Styling */
@@ -46,27 +49,28 @@ st.markdown("""
         display: inline-block;
         background-color: #E2ECE6;
         color: #2E5A44;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.8px;
-        padding: 5px 16px;
+        padding: 5px 14px;
         border-radius: 20px;
         margin-bottom: 0.8rem;
     }
 
     .zen-title {
-        font-size: 2.2rem;
+        font-size: 2.1rem;
         font-weight: 700;
         color: #12231C;
         letter-spacing: -0.5px;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.3rem;
     }
 
     .zen-subtitle {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         color: #5A6E65;
     }
 
+    /* Input Field Labels */
     .field-label {
         font-size: 0.88rem;
         font-weight: 700;
@@ -75,66 +79,88 @@ st.markdown("""
         display: block;
     }
 
-    /* File Uploader styling */
+    /* Streamlit File Uploader Overrides (Fix Text Contrast & Button) */
     [data-testid="stFileUploader"] {
-        background-color: transparent !important;
+        margin-bottom: 0.5rem;
     }
 
     [data-testid="stFileUploaderDropzone"] {
         background-color: #FFFFFF !important;
         border: 1.5px dashed #C2D3C9 !important;
-        border-radius: 14px !important;
+        border-radius: 12px !important;
         padding: 1rem !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
     }
 
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #2E5A44 !important;
-        background-color: #F8FAF9 !important;
+        background-color: #FAFCFA !important;
     }
 
-    /* Input Password styling */
+    /* Fix invisible text in File Uploader */
+    [data-testid="stFileUploaderDropzone"] div,
+    [data-testid="stFileUploaderDropzone"] span,
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] p {
+        color: #2E5A44 !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button {
+        background-color: #2E5A44 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Password Input Fix */
     div[data-baseweb="input"] {
         background-color: #FFFFFF !important;
         border: 1.5px solid #C2D3C9 !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    div[data-baseweb="input"] input {
+        color: #1A2E26 !important;
+        background-color: transparent !important;
     }
 
     div[data-baseweb="input"]:focus-within {
         border-color: #2E5A44 !important;
     }
 
-    /* Primary Buttons */
+    /* Full-Width Buttons */
     div.stButton > button, [data-testid="stDownloadButton"] > button {
         width: 100% !important;
         border-radius: 12px !important;
         height: 3.4rem !important;
         font-weight: 700 !important;
-        font-size: 1rem !important;
+        font-size: 0.98rem !important;
         background: #2E5A44 !important;
         border: none !important;
         color: #FFFFFF !important;
-        transition: all 0.25s ease !important;
-        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.2) !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 4px 14px rgba(46, 90, 68, 0.2) !important;
+        margin-top: 0.5rem;
     }
 
     div.stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
         background: #234735 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 10px 20px rgba(46, 90, 68, 0.3) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 18px rgba(46, 90, 68, 0.28) !important;
     }
 
     /* Success Card */
     .success-card {
         background-color: #FFFFFF;
         border: 1.5px solid #2E5A44;
-        border-radius: 14px;
+        border-radius: 12px;
         padding: 1.2rem;
         text-align: center;
         margin-top: 1rem;
         margin-bottom: 1rem;
-        box-shadow: 0 6px 16px rgba(46, 90, 68, 0.06);
+        box-shadow: 0 4px 12px rgba(46, 90, 68, 0.06);
     }
 
     .success-title {
@@ -194,8 +220,8 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
         office_file = msoffcrypto.OfficeFile(file_bytes)
         office_file.load_key(password=password)
         office_file.decrypt(decrypted_stream)
-    except Exception as e:
-        raise ValueError("Maling password o sira ang encrypted file structure.")
+    except Exception:
+        raise ValueError("Hindi ma-decrypt ang file. Pakisuri kung tama ang password.")
 
     decrypted_stream.seek(0)
     engines = ["openpyxl", "pyxlsb", "xlrd"]
@@ -210,7 +236,7 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
             continue
 
     if not excel_file:
-        raise ValueError("Hindi mabuksan ang Excel stream. Suriin ang format o password.")
+        raise ValueError("Hindi mabuksan ang Excel stream. Suriin ang file format.")
 
     if isinstance(sheet_identifier, int):
         target_sheet = excel_file.sheet_names[sheet_identifier]
@@ -348,7 +374,7 @@ def process_validation(main_file_obj, dr2_file_obj, pwd):
     output_stream.seek(0)
     return output_stream
 
-# --- UI HEADER ---
+# --- HEADER ---
 st.markdown("""
     <div class="zen-header">
         <div class="zen-badge">🌿 AUTOMATED VALIDATION WORKSPACE</div>
@@ -357,7 +383,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- FORM LAYOUT (2 COLUMNS) ---
+# --- FORM INPUTS (Side-by-Side Uploader inside centered card) ---
 col1, col2 = st.columns(2)
 
 with col1:
@@ -386,12 +412,10 @@ password = st.text_input(
     label_visibility="collapsed"
 )
 
-st.write("") # Spacing
-
 # --- ACTION & EXECUTION ---
 if st.button("Start Validation Engine 🌿", type="primary"):
     if not main_file or not dr2_file:
-        st.warning("Pakisuri ang files: kailangan parehong naka-upload ang Input File at Masterfile.")
+        st.warning("Pakiupload ang Input File at Masterfile para magsimula.")
     elif not password:
         st.warning("Pakilagay ang decryption password.")
     else:
@@ -402,7 +426,7 @@ if st.button("Start Validation Engine 🌿", type="primary"):
                 st.markdown("""
                     <div class="success-card">
                         <div class="success-title">Validation Successful</div>
-                        <div class="success-desc">All calculations processed seamlessly. Ready for download.</div>
+                        <div class="success-desc">All calculations match. Your report is formatted and ready for download.</div>
                     </div>
                 """, unsafe_allow_html=True)
                 
@@ -414,4 +438,4 @@ if st.button("Start Validation Engine 🌿", type="primary"):
                     use_container_width=True
                 )
             except Exception as e:
-                st.error(f"Error sa Pagproseso: {str(e)}")
+                st.error(f"Error: {str(e)}")
