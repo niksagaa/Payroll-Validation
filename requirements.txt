@@ -1,0 +1,8 @@
+cat <<EOF > requirements.txt
+streamlit
+pandas
+openpyxl
+msoffcrypto-tool
+pyxlsb
+xlrd
+EOF
