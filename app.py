@@ -1,5 +1,6 @@
 import io
 import os
+import time
 import msoffcrypto
 import pandas as pd
 import streamlit as st
@@ -14,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- REVISED CLEAN SINGLE-CARD LAYOUT CSS ---
+# --- REVISED CLEAN SINGLE-CARD LAYOUT & INSTRUCTIONS HIDE CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -71,16 +72,7 @@ st.markdown("""
         font-weight: 500;
     }
 
-    /* STREAMLIT CONTAINER OVERRIDE - SINGLE LARGE CARD */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #FFFFFF !important;
-        border: 1px solid #D1E2D9 !important;
-        border-radius: 18px !important;
-        padding: 2.2rem 2.2rem !important;
-        box-shadow: 0 10px 30px rgba(15, 118, 110, 0.04) !important;
-    }
-
-    /* Section Headings */
+    /* SECTION HEADINGS */
     .section-title {
         font-size: 1.05rem;
         font-weight: 700;
@@ -174,10 +166,26 @@ st.markdown("""
 
     div[data-baseweb="input"] button,
     div[data-baseweb="input"] svg,
-    div[data-baseweb="input"] span,
-    div[data-testid="stInputInstructions"] {
+    div[data-baseweb="input"] span {
         color: #0F766E !important;
         fill: #0F766E !important;
+    }
+
+    /* HIDE "PRESS ENTER TO APPLY" INSTRUCTION TEXT COMPLETELY */
+    div[data-testid="stInputInstructions"], 
+    small[data-testid="stInputInstructions"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0px !important;
+    }
+
+    /* STREAMLIT PROGRESS BAR STYLING MATCHING EMERALD UI */
+    div[data-testid="stProgress"] > div > div > div {
+        background-color: #0F766E !important;
+    }
+    div[data-testid="stProgress"] > div > div {
+        background-color: #D8ECE2 !important;
+        border-radius: 8px !important;
     }
 
     /* Pipeline Step Box */
@@ -334,12 +342,22 @@ def load_encrypted_excel(file_bytes, password, sheet_identifier):
     df.columns = [str(c).strip() for c in df.columns]
     return df
 
-def process_validation(main_file_obj, dr2_file_obj, pwd):
+def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_text):
+    # Step 1: File Parsing & Decryption
+    status_text.markdown("🔒 **Decrypting and reading uploaded Excel files...**")
+    progress_bar.progress(20)
+    time.sleep(0.3)
+
     main_bytes = io.BytesIO(main_file_obj.getvalue())
     dr2_bytes = io.BytesIO(dr2_file_obj.getvalue())
 
     df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
     df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
+
+    # Step 2: Mapping Keys & Cleaning Data
+    status_text.markdown("📑 **Matching Employee IDs and structure...**")
+    progress_bar.progress(45)
+    time.sleep(0.3)
 
     actual_key_main = find_matching_column(df_main.columns, "Row Labels") or "Row Labels"
     actual_key_dr2 = find_matching_column(df_dr2.columns, "ID") or "ID"
@@ -349,6 +367,11 @@ def process_validation(main_file_obj, dr2_file_obj, pwd):
 
     final_cols = []
     display_header_map = {}
+
+    # Step 3: Calculation & Rule Validation
+    status_text.markdown("⚖️ **Calculating variances and applying validation rules...**")
+    progress_bar.progress(70)
+    time.sleep(0.3)
 
     for col in df_main.columns:
         final_cols.append(col)
@@ -398,6 +421,11 @@ def process_validation(main_file_obj, dr2_file_obj, pwd):
             df_main[rem_col] = rem_vals
 
     df_final = df_main[final_cols]
+
+    # Step 4: Formatting Final Excel Report
+    status_text.markdown("🎨 **Generating styled Excel report...**")
+    progress_bar.progress(90)
+    time.sleep(0.3)
 
     output_stream = io.BytesIO()
     with pd.ExcelWriter(output_stream, engine="openpyxl") as writer:
@@ -456,6 +484,8 @@ def process_validation(main_file_obj, dr2_file_obj, pwd):
                     max_len = len(val)
             ws.column_dimensions[col_letter].width = max(max_len + 5, 12)
 
+    progress_bar.progress(100)
+    status_text.markdown("✨ **Validation Complete!**")
     output_stream.seek(0)
     return output_stream
 
@@ -481,10 +511,11 @@ if "uploader_key_2" not in st.session_state:
 if "pwd_value" not in st.session_state:
     st.session_state["pwd_value"] = ""
 
-# --- SINGLE CARD FORM CONTAINER ---
-with st.container(border=True):
-    
-    # --- 1. UPLOAD PAYROLL FILES ---
+# --- SINGLE FORM CARD (NATIVE STREAMLIT FORM CONTAINER WITH CSS BORDER) ---
+form_card = st.container(border=True)
+
+with form_card:
+    # 1. UPLOAD SECTION
     st.markdown('<div class="section-title">1. Upload Payroll Files</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
@@ -521,9 +552,9 @@ with st.container(border=True):
                 </div>
             """, unsafe_allow_html=True)
 
-    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
-    # --- 2. SECURITY & CREDENTIALS ---
+    # 2. PASSWORD SECTION
     st.markdown('<div class="section-title">2. Security & Credentials</div>', unsafe_allow_html=True)
 
     st.markdown('<span class="input-label">File Password</span>', unsafe_allow_html=True)
@@ -537,7 +568,7 @@ with st.container(border=True):
 
     st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
 
-    # --- ACTIONS & BUTTONS (Inside the Card) ---
+    # 3. BUTTON ACTION AREA INSIDE CARD
     btn_col1, btn_col2 = st.columns([3, 1])
 
     with btn_col1:
@@ -546,29 +577,19 @@ with st.container(border=True):
     with btn_col2:
         clear_btn = st.button("Reset Form", type="secondary", use_container_width=True, on_click=reset_form)
 
-# Execution Logic (Outside Card for Progress display)
+# --- EXECUTION LOGIC WITH PROGRESS BAR ---
 if start_btn:
     if not main_file or not dr2_file:
         st.error("Please upload both Payroll Inputs and Masterfile before proceeding.")
-    elif not password:
-        st.error("Please enter the file password.")
     else:
-        pipeline_placeholder = st.empty()
-        pipeline_placeholder.markdown("""
-            <div class="pipeline-container">
-                <div class="pipeline-step"><span class="pipeline-icon">📄</span>File Parsing</div>
-                <div class="pipeline-step"><span class="pipeline-icon">📑</span>Rule Application</div>
-                <div class="pipeline-step"><span class="pipeline-icon">⚖️</span>Anomaly Detection</div>
-                <div class="pipeline-step"><span class="pipeline-icon">🛡️</span>Decryption Check</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-        progress_bar = st.progress(0)
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
         
+        # Placeholders para sa Progress Bar at Real-time Status Text
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+
         try:
-            progress_bar.progress(30)
-            result_excel = process_validation(main_file, dr2_file, password)
-            progress_bar.progress(100)
+            result_excel = process_validation(main_file, dr2_file, password, progress_bar, status_text)
             
             st.success("Validation completed successfully.")
             
@@ -580,7 +601,8 @@ if start_btn:
                 use_container_width=True
             )
         except Exception as e:
-            progress_bar.progress(0)
+            progress_bar.empty()
+            status_text.empty()
             st.error(f"Execution Error: {str(e)}")
 
 # --- FOOTER ---
