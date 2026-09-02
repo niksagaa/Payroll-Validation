@@ -1,6 +1,7 @@
-streamlit
+fastapi
+uvicorn
 pandas
 openpyxl
-msoffcrypto-tool
 pyxlsb
 xlrd
+msoffcrypto-tool
