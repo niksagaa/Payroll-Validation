@@ -7,12 +7,17 @@ import pandas as pd
 import uvicorn
 from difflib import SequenceMatcher
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 app = FastAPI(title="Payroll Hours Validator API")
+app.mount("/static", StaticFiles(directory="."), name="static")
+@app.get("/")
+def read_index():
+    return FileResponse("index.html")
 
 app.add_middleware(
     CORSMiddleware,
@@ -419,4 +424,5 @@ async def validate_mapped(
         raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
