@@ -1,624 +1,422 @@
 import io
 import os
-import time
+import json
+import tempfile
 import msoffcrypto
 import pandas as pd
-import streamlit as st
+import uvicorn
+from difflib import SequenceMatcher
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="Payroll Validation System",
-    page_icon="🌿",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+app = FastAPI(title="Payroll Hours Validator API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# --- CORRECTED CSS FOR WHITE INPUT BOX & NO DUPLICATE ICONS ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-    /* Hide Streamlit Chrome Header & Footers */
-    #MainMenu, header, footer, [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"] {
-        visibility: hidden !important;
-        display: none !important;
-    }
-
-    /* Global Page Background */
-    html, body, [class*="css"], .stApp {
-        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
-        background-color: #EBF2EE !important;
-        color: #0F382C !important;
-    }
-
-    /* Center Container Spacing */
-    .main .block-container {
-        padding: 3rem 1.5rem !important;
-        max-width: 780px !important;
-    }
-
-    /* FORM CARD BACKGROUND COLOR & BORDER */
-    [data-testid="stForm"], div[class*="st-key-"] > div[data-testid="stVerticalBlockBorderWrapper"],
-    [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #F3F8F5 !important;
-        border: 1.5px solid #C5E1D4 !important;
-        border-radius: 16px !important;
-        padding: 1.5rem !important;
-        box-shadow: 0 4px 20px rgba(15, 118, 110, 0.05) !important;
-    }
-
-    /* Header Styling */
-    .zen-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .zen-badge {
-        display: inline-block;
-        background-color: #D8ECE2;
-        color: #0F766E !important;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.8px;
-        padding: 6px 16px;
-        border-radius: 20px;
-        border: 1px solid #B4DEC9;
-        margin-bottom: 0.8rem;
-    }
-
-    .zen-title {
-        font-size: 2.3rem;
-        font-weight: 800;
-        color: #0F766E;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.4rem;
-    }
-
-    .zen-subtitle {
-        font-size: 0.92rem;
-        color: #4A6B5D;
-        font-weight: 500;
-    }
-
-    /* SECTION HEADINGS */
-    .section-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #0F766E;
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
-        border-bottom: 1.5px solid #DDF0E7;
-        padding-bottom: 8px;
-    }
-
-    .input-label {
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: #24473B;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    /* UPLOADER LIGHT STYLING */
-    [data-testid="stFileUploaderDropzone"] {
-        background-color: #FFFFFF !important;
-        border: 2px dashed #0F766E !important;
-        border-radius: 12px !important;
-        padding: 1.2rem 1rem !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #0D9488 !important;
-        background-color: #EBF7F2 !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] div,
-    [data-testid="stFileUploaderDropzone"] span,
-    [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] p,
-    [data-testid="stFileUploaderDropzone"] label {
-        color: #0F766E !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] button {
-        background-color: #0F766E !important;
-        border: none !important;
-        border-radius: 6px !important;
-        color: #FFFFFF !important;
-        box-shadow: none !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] button:hover {
-        background-color: #0D9488 !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] button * {
-        color: #FFFFFF !important;
-    }
-
-    .file-status-box {
-        background-color: #E6F4EA;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #0F766E;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 8px;
-        border: 1px solid #B4DEC9;
-    }
-
-    /* CLEAN WHITE BACKGROUND FOR TEXT INPUT & PASSWORD */
-    div[data-baseweb="input"] {
-        background-color: #FFFFFF !important;
-        background: #FFFFFF !important;
-        border: 1.5px solid #A8D1BD !important;
-        border-radius: 8px !important;
-    }
-
-    div[data-baseweb="input"]:focus-within {
-        border-color: #0F766E !important;
-        box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15) !important;
-    }
-
-    div[data-baseweb="input"] input {
-        color: #0F382C !important;
-        font-weight: 600 !important;
-        background-color: transparent !important;
-        -webkit-text-fill-color: #0F382C !important;
-    }
-
-    /* FIX FOR DUPLICATE / OVERLAPPING ICONS */
-    div[data-baseweb="input"] button {
-        background: transparent !important;
-        border: none !important;
-    }
-
-    /* Target only the primary password visibility icon and color it correctly */
-    div[data-baseweb="input"] svg {
-        fill: #0F766E !important;
-        color: #0F766E !important;
-    }
-
-    /* HIDE EXTRA/DUPLICATE ICON & INSTRUCTION TEXT COMPLETELY */
-    [data-testid="stInputInstructions"], 
-    div[data-testid="stInputInstructions"], 
-    small[data-testid="stInputInstructions"],
-    div[data-baseweb="input"] > div:last-child > div:not(:first-child) {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0px !important;
-        opacity: 0 !important;
-    }
-
-    /* STREAMLIT PROGRESS BAR STYLING */
-    div[data-testid="stProgress"] > div > div > div {
-        background-color: #0F766E !important;
-    }
-    div[data-testid="stProgress"] > div > div {
-        background-color: #D8ECE2 !important;
-        border-radius: 8px !important;
-    }
-
-    /* Pipeline Step Box */
-    .pipeline-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
-        padding: 12px;
-        background-color: #E8F4EE;
-        border-radius: 8px;
-        border: 1px solid #B4DEC9;
-    }
-
-    .pipeline-step {
-        text-align: center;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #0F766E;
-        flex: 1;
-    }
-
-    .pipeline-icon {
-        font-size: 1.2rem;
-        margin-bottom: 4px;
-        display: block;
-    }
-
-    /* Bottom Buttons inside Card */
-    div.stButton > button {
-        border-radius: 8px !important;
-        height: 3rem !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-        transition: all 0.2s ease !important;
-    }
-
-    div.stButton > button[kind="primary"] {
-        background-color: #0F766E !important;
-        border: 1px solid #0F766E !important;
-    }
-
-    div.stButton > button[kind="primary"] p {
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
-    }
-
-    div.stButton > button[kind="primary"]:hover {
-        background-color: #0D9488 !important;
-        border-color: #0D9488 !important;
-        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2) !important;
-    }
-
-    div.stButton > button[kind="secondary"] {
-        background-color: #FFFFFF !important;
-        border: 1.5px solid #C8DEC3 !important;
-    }
-
-    div.stButton > button[kind="secondary"] p {
-        color: #4A6B5D !important;
-        font-weight: 600 !important;
-    }
-
-    div.stButton > button[kind="secondary"]:hover {
-        background-color: #F6FAF7 !important;
-        border-color: #0F766E !important;
-    }
-
-    div.stButton > button[kind="secondary"]:hover p {
-        color: #0F766E !important;
-    }
-
-    .footer-text {
-        text-align: center;
-        font-size: 0.78rem;
-        color: #5A7E70;
-        font-weight: 600;
-        margin-top: 2rem;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- CONSTANTS ---
 ACCOUNTING_FORMAT = '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)'
 
-COLUMN_MAPPINGS = [
-    ("Sum of Regular Hours", "Salaries and Wages (Units)"),
-    ("Vacation Hours", "Vacation Leave (Hours)"),
-    ("Regular ND Hours", "Night Differential (Hours)"),
-    ("Regular OT Hours", "Restday OT > 8 (Hours)"),
-    ("Sum of Rest Day Hours", "Restday OT (Hours)"),
-]
-
-# --- HELPER FUNCTIONS ---
-def find_matching_column(df_columns, target_name):
-    cols_clean = {str(c).strip().lower(): c for c in df_columns}
-    target_clean = target_name.strip().lower()
-
-    if target_clean in cols_clean:
-        return cols_clean[target_clean]
-
-    with_sum = f"sum of {target_clean}"
-    if with_sum in cols_clean:
-        return cols_clean[with_sum]
-
-    if target_clean.startswith("sum of "):
-        without_sum = target_clean.replace("sum of ", "").strip()
-        if without_sum in cols_clean:
-            return cols_clean[without_sum]
-
-    return None
-
 def clean_id(val):
-    if pd.isna(val):
-        return ""
+    if pd.isna(val): return ""
     val_str = str(val).strip()
-    if val_str.endswith(".0"):
-        val_str = val_str[:-2]
+    if val_str.endswith(".0"): val_str = val_str[:-2]
     return val_str.replace(" ", "")
 
-def load_encrypted_excel(file_bytes, password, sheet_identifier):
-    decrypted_stream = io.BytesIO()
-    try:
-        office_file = msoffcrypto.OfficeFile(file_bytes)
-        office_file.load_key(password=password)
-        office_file.decrypt(decrypted_stream)
-    except Exception:
-        raise ValueError("Decryption failed. Please verify the provided password.")
+def normalize_text(text):
+    return str(text).lower().replace("sum of ", "").replace("  ", " ").strip()
 
-    decrypted_stream.seek(0)
+def get_similarity(a, b):
+    return SequenceMatcher(None, normalize_text(a), normalize_text(b)).ratio()
+
+def smart_match_columns(main_cols, dr2_cols, threshold=0.55):
+    matched_map = {}
+    ambiguous_cols = []
+    for m_col in main_cols:
+        best_match, highest_score = None, 0.0
+        for d_col in dr2_cols:
+            score = get_similarity(m_col, d_col)
+            norm_m, norm_d = normalize_text(m_col), normalize_text(d_col)
+            if norm_m in norm_d or norm_d in norm_m:
+                score = max(score, 0.85)
+            if score > highest_score:
+                highest_score, best_match = score, d_col
+        if highest_score >= threshold:
+            matched_map[m_col] = best_match
+        else:
+            ambiguous_cols.append(m_col)
+            matched_map[m_col] = "-- Skip / Do Not Compare --"
+    return matched_map, ambiguous_cols
+
+def get_target_sheet(excel_file, sheet_identifier):
+    if not sheet_identifier:
+        return excel_file.sheet_names[0]
+    if isinstance(sheet_identifier, int) or str(sheet_identifier).isdigit():
+        idx = int(sheet_identifier)
+        return excel_file.sheet_names[idx] if idx < len(excel_file.sheet_names) else excel_file.sheet_names[0]
+    target_clean = str(sheet_identifier).strip().lower()
+    matched = [s for s in excel_file.sheet_names if s.strip().lower() == target_clean]
+    return matched[0] if matched else excel_file.sheet_names[0]
+
+def load_file_robust(file_bytes, file_name, password, sheet_identifier):
+    if file_name.lower().endswith('.csv'):
+        try: return pd.read_csv(io.BytesIO(file_bytes))
+        except Exception:
+            return pd.read_csv(io.BytesIO(file_bytes), encoding='latin1')
+
     engines = ["openpyxl", "pyxlsb", "xlrd"]
-    excel_file = None
-    
     for engine in engines:
         try:
-            decrypted_stream.seek(0)
-            excel_file = pd.ExcelFile(decrypted_stream, engine=engine)
-            break
+            excel_file = pd.ExcelFile(io.BytesIO(file_bytes), engine=engine)
+            sheet = get_target_sheet(excel_file, sheet_identifier)
+            df = pd.read_excel(excel_file, sheet_name=sheet)
+            df.columns = [str(c).strip() for c in df.columns]
+            return df
+        except Exception: continue
+
+    if password:
+        decrypted_stream = io.BytesIO()
+        try:
+            office_file = msoffcrypto.OfficeFile(io.BytesIO(file_bytes))
+            office_file.load_key(password=password)
+            office_file.decrypt(decrypted_stream)
         except Exception:
-            continue
+            raise ValueError("Incorrect password or failed to decrypt the file.")
 
-    if not excel_file:
-        raise ValueError("Unable to read Excel structure. Unrecognized or corrupt format.")
+        decrypted_stream.seek(0)
+        for engine in engines:
+            try:
+                excel_file = pd.ExcelFile(decrypted_stream, engine=engine)
+                sheet = get_target_sheet(excel_file, sheet_identifier)
+                df = pd.read_excel(excel_file, sheet_name=sheet)
+                df.columns = [str(c).strip() for c in df.columns]
+                return df
+            except Exception: continue
 
-    if isinstance(sheet_identifier, int):
-        target_sheet = excel_file.sheet_names[sheet_identifier]
-    else:
-        target_clean = str(sheet_identifier).strip().lower()
-        matched = [s for s in excel_file.sheet_names if s.strip().lower() == target_clean]
-        target_sheet = matched[0] if matched else excel_file.sheet_names[0]
+    raise ValueError("Unable to read the file. Please check the file format or password.")
 
-    df = pd.read_excel(excel_file, sheet_name=target_sheet)
-    df.columns = [str(c).strip() for c in df.columns]
-    return df
+def get_best_dr2_key(df_dr2):
+    for c in df_dr2.columns:
+        c_low = str(c).lower()
+        if any(k in c_low for k in ["emp id", "employee id", "empid", "emp_id", "row label"]):
+            return c
+    return next((c for c in df_dr2.columns if any(k in str(c).lower() for k in ["id", "emp"])), df_dr2.columns[0])
 
-def process_validation(main_file_obj, dr2_file_obj, pwd, progress_bar, status_text):
-    status_text.markdown("🔒 **Decrypting and reading uploaded Excel files...**")
-    progress_bar.progress(20)
-    time.sleep(0.3)
+def parse_numeric_val(val):
+    if pd.isna(val):
+        return 0.0
+    if isinstance(val, (int, float)):
+        return float(val)
+    val_str = str(val).replace(',', '').strip()
+    if not val_str or val_str == '-':
+        return 0.0
+    try:
+        return float(val_str)
+    except ValueError:
+        return 0.0
 
-    main_bytes = io.BytesIO(main_file_obj.getvalue())
-    dr2_bytes = io.BytesIO(dr2_file_obj.getvalue())
+def process_single_sheet_dataframe(df_main, df_dr2, key_main, key_dr2, final_column_map):
+    df_main[key_main] = df_main[key_main].apply(clean_id)
+    df_dr2[key_dr2] = df_dr2[key_dr2].apply(clean_id)
 
-    df_main = load_encrypted_excel(main_bytes, pwd, "Hourly Checker")
-    df_dr2 = load_encrypted_excel(dr2_bytes, pwd, 0)
-
-    status_text.markdown("📑 **Matching Employee IDs and structure...**")
-    progress_bar.progress(45)
-    time.sleep(0.3)
-
-    actual_key_main = find_matching_column(df_main.columns, "Row Labels") or "Row Labels"
-    actual_key_dr2 = find_matching_column(df_dr2.columns, "ID") or "ID"
-
-    df_main[actual_key_main] = df_main[actual_key_main].apply(clean_id)
-    df_dr2[actual_key_dr2] = df_dr2[actual_key_dr2].apply(clean_id)
-
-    final_cols = []
-    display_header_map = {}
-
-    status_text.markdown("⚖️ **Calculating variances and applying validation rules...**")
-    progress_bar.progress(70)
-    time.sleep(0.3)
+    final_cols, display_header_map = [], {}
 
     for col in df_main.columns:
+        if col == key_main:
+            final_cols.append(col)
+            display_header_map[col] = col
+            continue
+
         final_cols.append(col)
         display_header_map[col] = col
+        dr2_target_col = final_column_map.get(col)
 
-        mapping = next((m for m in COLUMN_MAPPINGS if find_matching_column([col], m[0])), None)
-
-        if mapping:
-            _, dr2_target = mapping
-            dr2_col_match = find_matching_column(df_dr2.columns, dr2_target)
-
-            dr2_val_col = f"__DR2_{col}"
-            chk_col = f"__CHK_{col}"
-            rem_col = f"__REM_{col}"
-
+        if dr2_target_col and dr2_target_col != "-- Skip / Do Not Compare --":
+            dr2_val_col, chk_col, rem_col = f"__DR2_{col}", f"__CHK_{col}", f"__REM_{col}"
             final_cols.extend([dr2_val_col, chk_col, rem_col])
             display_header_map[dr2_val_col] = "DR2"
             display_header_map[chk_col] = "CHECKER"
             display_header_map[rem_col] = "REMARKS"
 
-            dr2_grouped = df_dr2.groupby(actual_key_dr2)[dr2_col_match].sum().to_dict() if dr2_col_match else {}
+            df_dr2_clean = df_dr2.copy()
+            
+            # Determine if this column is numeric or string
+            is_numeric_col = True
+            if col in df_main.columns:
+                sample_vals = df_main[col].dropna().head(10)
+                numeric_count = 0
+                for v in sample_vals:
+                    try:
+                        float(str(v).replace(',', '').strip())
+                        numeric_count += 1
+                    except ValueError:
+                        pass
+                if len(sample_vals) > 0 and (numeric_count / len(sample_vals)) < 0.5:
+                    is_numeric_col = False
+
+            if dr2_target_col in df_dr2_clean.columns:
+                if is_numeric_col:
+                    df_dr2_clean[dr2_target_col] = df_dr2_clean[dr2_target_col].apply(parse_numeric_val)
+                    dr2_grouped = df_dr2_clean.groupby(key_dr2)[dr2_target_col].sum().to_dict()
+                else:
+                    df_dr2_clean[dr2_target_col] = df_dr2_clean[dr2_target_col].apply(lambda x: "" if pd.isna(x) else str(x).strip())
+                    dr2_grouped = df_dr2_clean.groupby(key_dr2)[dr2_target_col].first().to_dict()
+            else:
+                dr2_grouped = {}
 
             dr2_vals, chk_vals, rem_vals = [], [], []
-
             for _, row in df_main.iterrows():
-                emp_id = row[actual_key_main]
-                main_val = pd.to_numeric(row[col], errors='coerce') or 0.0
-
-                if dr2_col_match and emp_id in dr2_grouped:
-                    dr2_val = float(dr2_grouped[emp_id])
-                    diff = main_val - dr2_val
-
-                    dr2_vals.append(dr2_val)
-                    if abs(diff) < 0.001:
-                        chk_vals.append("-")
-                        rem_vals.append("OK; NO VARIANCE")
-                    else:
+                emp_id = row[key_main]
+                
+                if is_numeric_col:
+                    main_val = parse_numeric_val(row[col])
+                    if emp_id in dr2_grouped:
+                        dr2_val = dr2_grouped[emp_id]
+                        diff = round(main_val - dr2_val, 4)
+                        dr2_vals.append(dr2_val)
                         chk_vals.append(diff)
-                        rem_vals.append("OK; NOT ELIGIBLE")
+                        rem_vals.append("OK; NO VARIANCE" if abs(diff) < 0.0001 else "VARIANCE")
+                    else:
+                        dr2_vals.append(0.0)
+                        chk_vals.append(main_val)
+                        rem_vals.append("NOT IN DR")
                 else:
-                    dr2_vals.append(None)
-                    chk_vals.append("#N/A")
-                    rem_vals.append("NOT IN DR2")
+                    main_val = "" if pd.isna(row[col]) else str(row[col]).strip()
+                    if emp_id in dr2_grouped:
+                        dr2_val = dr2_grouped[emp_id]
+                        dr2_vals.append(dr2_val)
+                        
+                        is_equal = (main_val.lower() == dr2_val.lower())
+                        chk_vals.append(True if is_equal else False)
+                        rem_vals.append("OK; MATCH" if is_equal else "MISMATCH")
+                    else:
+                        dr2_vals.append("")
+                        chk_vals.append(False)
+                        rem_vals.append("NOT IN DR")
 
             df_main[dr2_val_col] = dr2_vals
             df_main[chk_col] = chk_vals
             df_main[rem_col] = rem_vals
 
     df_final = df_main[final_cols]
+    return df_final, final_cols, display_header_map
 
-    status_text.markdown("🎨 **Generating styled Excel report...**")
-    progress_bar.progress(90)
-    time.sleep(0.3)
+@app.get("/", response_class=HTMLResponse)
+async def serve_ui():
+    if not os.path.exists("index.html"):
+        raise HTTPException(status_code=404, detail="index.html not found.")
+    with open("index.html", "r", encoding="utf-8") as f:
+        return f.read()
 
-    output_stream = io.BytesIO()
-    with pd.ExcelWriter(output_stream, engine="openpyxl") as writer:
-        df_final.to_excel(writer, sheet_name="Validated", index=False)
+@app.post("/get-sheets")
+async def get_sheets(
+    file: UploadFile = File(...),
+    password: str = Form("")
+):
+    try:
+        file_bytes = await file.read()
         
-        ws = writer.sheets["Validated"]
-        thin_border = Border(
-            left=Side(style='thin', color='D3D3D3'),
-            right=Side(style='thin', color='D3D3D3'),
-            top=Side(style='thin', color='D3D3D3'),
-            bottom=Side(style='thin', color='D3D3D3')
-        )
+        if file.filename.lower().endswith('.csv'):
+            return JSONResponse({"sheet_names": ["Sheet1"]})
 
-        header_display_names = [display_header_map[c] for c in final_cols]
-        for col_idx, text in enumerate(header_display_names, 1):
-            cell = ws.cell(row=1, column=col_idx)
-            cell.value = text
-            cell.border = thin_border
-
-            if text in ["DR2", "CHECKER", "REMARKS"]:
-                cell.fill = PatternFill(start_color="D4AC0D", end_color="D4AC0D", fill_type="solid")
-                cell.font = Font(name="Calibri", size=10, bold=True, color="000000")
-            else:
-                cell.fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
-                cell.font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
-
-            cell.alignment = Alignment(horizontal="center", vertical="center")
-
-        key_col_index = final_cols.index(actual_key_main) + 1
-
-        for row_idx in range(2, ws.max_row + 1):
-            for col_idx in range(1, ws.max_column + 1):
-                cell = ws.cell(row=row_idx, column=col_idx)
-                cell.font = Font(name="Calibri", size=10)
-                cell.border = thin_border
-
-                if col_idx == key_col_index:
-                    cell.number_format = '@'
-                    cell.alignment = Alignment(horizontal="left", vertical="center")
+        engines = ["openpyxl", "pyxlsb", "xlrd"]
+        sheet_names = []
+        for engine in engines:
+            try:
+                excel_file = pd.ExcelFile(io.BytesIO(file_bytes), engine=engine)
+                sheet_names = excel_file.sheet_names
+                break
+            except Exception:
+                continue
+        
+        if not sheet_names and password:
+            decrypted_stream = io.BytesIO()
+            office_file = msoffcrypto.OfficeFile(io.BytesIO(file_bytes))
+            office_file.load_key(password=password)
+            office_file.decrypt(decrypted_stream)
+            decrypted_stream.seek(0)
+            for engine in engines:
+                try:
+                    excel_file = pd.ExcelFile(decrypted_stream, engine=engine)
+                    sheet_names = excel_file.sheet_names
+                    break
+                except Exception:
                     continue
 
-                if isinstance(cell.value, (int, float)):
-                    cell.number_format = ACCOUNTING_FORMAT
-                    cell.alignment = Alignment(horizontal="right", vertical="center")
-                elif cell.value in ["-", "#N/A"]:
+        if not sheet_names:
+            raise ValueError("No readable sheets found. Please check the file format or password.")
+
+        return JSONResponse({"sheet_names": sheet_names})
+    except Exception as e:
+        print(f"Error fetching sheets: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to read sheets: {str(e)}")
+
+@app.post("/analyze-mapping")
+async def analyze_mapping(
+    payroll_inputs: UploadFile = File(...),
+    payroll_masterfile: UploadFile = File(...),
+    password: str = Form(""),
+    sheet_name: str = Form(""),
+    employee_id_col: str = Form("")
+):
+    try:
+        main_bytes = await payroll_inputs.read()
+        dr2_bytes = await payroll_masterfile.read()
+
+        df_main = load_file_robust(main_bytes, payroll_inputs.filename, password, sheet_name)
+        df_dr2 = load_file_robust(dr2_bytes, payroll_masterfile.filename, password, 0)
+
+        if employee_id_col and employee_id_col in df_main.columns:
+            key_main = employee_id_col
+        else:
+            key_main = next((c for c in df_main.columns if any(k in str(c).lower() for k in ["row label", "id", "emp", "code"])), df_main.columns[0])
+
+        key_dr2 = get_best_dr2_key(df_dr2)
+
+        data_cols = [c for c in df_main.columns if c != key_main]
+        matched_map, ambiguous_cols = smart_match_columns(data_cols, df_dr2.columns)
+
+        return JSONResponse({
+            "main_columns": list(df_main.columns),
+            "dr2_columns": list(df_dr2.columns),
+            "data_cols": data_cols,
+            "detected_key_main": key_main,
+            "detected_key_dr2": key_dr2,
+            "initial_mapping": matched_map,
+            "ambiguous_cols": ambiguous_cols
+        })
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/validate-mapped")
+async def validate_mapped(
+    payroll_inputs: UploadFile = File(...),
+    payroll_masterfile: UploadFile = File(...),
+    password: str = Form(""),
+    sheet_name: str = Form(""),
+    employee_id_col: str = Form(""),
+    master_id_col: str = Form(""),
+    mapping_json: str = Form("{}"),
+    all_mappings_json: str = Form("{}"),
+    all_id_keys_json: str = Form("{}")
+):
+    try:
+        main_bytes = await payroll_inputs.read()
+        dr2_bytes = await payroll_masterfile.read()
+
+        df_dr2 = load_file_robust(dr2_bytes, payroll_masterfile.filename, password, 0)
+        key_dr2 = master_id_col if master_id_col in df_dr2.columns else get_best_dr2_key(df_dr2)
+
+        all_mappings = {}
+        if all_mappings_json and all_mappings_json != "{}":
+            try:
+                all_mappings = json.loads(all_mappings_json)
+            except Exception:
+                all_mappings = {}
+
+        all_id_keys = {}
+        if all_id_keys_json and all_id_keys_json != "{}":
+            try:
+                all_id_keys = json.loads(all_id_keys_json)
+            except Exception:
+                all_id_keys = {}
+
+        if not all_mappings:
+            target_s = sheet_name if sheet_name else ""
+            single_map = json.loads(mapping_json) if mapping_json else {}
+            all_mappings = {target_s: single_map}
+
+        temp_dir = tempfile.gettempdir()
+        output_filepath = os.path.join(temp_dir, "Payroll_Validated_Report.xlsx")
+
+        with pd.ExcelWriter(output_filepath, engine="openpyxl") as writer:
+            for s_name, tab_mapping in all_mappings.items():
+                if isinstance(tab_mapping, dict) and tab_mapping.get("__SKIPPED__"):
+                    continue
+
+                try:
+                    df_main = load_file_robust(main_bytes, payroll_inputs.filename, password, s_name if s_name else 0)
+                except Exception:
+                    continue
+
+                if df_main.empty:
+                    continue
+
+                tab_specific_id = all_id_keys.get(s_name)
+                if tab_specific_id and tab_specific_id in df_main.columns:
+                    key_main = tab_specific_id
+                elif employee_id_col and employee_id_col in df_main.columns:
+                    key_main = employee_id_col
+                else:
+                    key_main = next((c for c in df_main.columns if any(k in str(c).lower() for k in ["row label", "id", "emp", "code"])), df_main.columns[0])
+
+                df_final, final_cols, display_header_map = process_single_sheet_dataframe(
+                    df_main, df_dr2, key_main, key_dr2, tab_mapping
+                )
+
+                sheet_label = str(s_name).strip() if s_name else "Validated"
+                if not sheet_label or sheet_label == "None":
+                    sheet_label = "Validated"
+
+                df_final.to_excel(writer, sheet_name=sheet_label, index=False)
+                ws = writer.sheets[sheet_label]
+
+                thin_border = Border(
+                    left=Side(style='thin', color='D3D3D3'), right=Side(style='thin', color='D3D3D3'),
+                    top=Side(style='thin', color='D3D3D3'), bottom=Side(style='thin', color='D3D3D3')
+                )
+
+                header_display_names = [display_header_map[c] for c in final_cols]
+                for col_idx, text in enumerate(header_display_names, 1):
+                    cell = ws.cell(row=1, column=col_idx)
+                    cell.value, cell.border = text, thin_border
+                    if text in ["DR2", "CHECKER", "REMARKS"]:
+                        cell.fill = PatternFill(start_color="D4AC0D", end_color="D4AC0D", fill_type="solid")
+                        cell.font = Font(name="Calibri", size=10, bold=True, color="000000")
+                    else:
+                        cell.fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+                        cell.font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
                     cell.alignment = Alignment(horizontal="center", vertical="center")
 
-        for col in ws.columns:
-            max_len = 0
-            col_letter = get_column_letter(col[0].column)
-            for cell in col:
-                val = str(cell.value or '')
-                if cell.number_format == ACCOUNTING_FORMAT and isinstance(cell.value, (int, float)):
-                    val = f"{cell.value:,.2f}"
-                if len(val) > max_len:
-                    max_len = len(val)
-            ws.column_dimensions[col_letter].width = max(max_len + 5, 12)
+                key_col_index = final_cols.index(key_main) + 1 if key_main in final_cols else 1
+                for row_idx in range(2, ws.max_row + 1):
+                    for col_idx in range(1, ws.max_column + 1):
+                        cell = ws.cell(row=row_idx, column=col_idx)
+                        cell.font, cell.border = Font(name="Calibri", size=10), thin_border
 
-    progress_bar.progress(100)
-    status_text.markdown("✨ **Validation Complete!**")
-    output_stream.seek(0)
-    return output_stream
+                        if col_idx == key_col_index:
+                            cell.number_format, cell.alignment = '@', Alignment(horizontal="left", vertical="center")
+                            continue
 
-# --- HEADER SECTION ---
-st.markdown("""
-    <div class="zen-header">
-        <div class="zen-badge">PAYROLL AUTOMATION TOOL</div>
-        <div class="zen-title">Payroll Validation System</div>
-        <div class="zen-subtitle">Quickly check payroll inputs against master records.</div>
-    </div>
-""", unsafe_allow_html=True)
+                        if isinstance(cell.value, bool):
+                            cell.alignment = Alignment(horizontal="center", vertical="center")
+                            continue
 
-# Form reset state handling
-def reset_form():
-    st.session_state["uploader_key_1"] = st.session_state.get("uploader_key_1", 0) + 1
-    st.session_state["uploader_key_2"] = st.session_state.get("uploader_key_2", 0) + 1
-    st.session_state["pwd_value"] = ""
+                        if isinstance(cell.value, (int, float)):
+                            cell.number_format, cell.alignment = ACCOUNTING_FORMAT, Alignment(horizontal="right", vertical="center")
+                        elif cell.value in ["-", "#N/A"]:
+                            cell.alignment = Alignment(horizontal="center", vertical="center")
 
-if "uploader_key_1" not in st.session_state:
-    st.session_state["uploader_key_1"] = 0
-if "uploader_key_2" not in st.session_state:
-    st.session_state["uploader_key_2"] = 0
-if "pwd_value" not in st.session_state:
-    st.session_state["pwd_value"] = ""
+                for col in ws.columns:
+                    max_len, col_letter = 0, get_column_letter(col[0].column)
+                    for cell in col:
+                        val = str(cell.value or '')
+                        if cell.number_format == ACCOUNTING_FORMAT and isinstance(cell.value, (int, float)):
+                            val = f"{cell.value:,.2f}"
+                        if len(val) > max_len: max_len = len(val)
+                    ws.column_dimensions[col_letter].width = max(max_len + 4, 11)
 
-# --- SINGLE FORM CARD ---
-form_card = st.container(border=True)
+        return FileResponse(output_filepath, filename="Payroll_Validated_Report.xlsx", media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-with form_card:
-    # 1. UPLOAD SECTION
-    st.markdown('<div class="section-title">1. Upload Payroll Files</div>', unsafe_allow_html=True)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown('<span class="input-label">Payroll Inputs</span>', unsafe_allow_html=True)
-        main_file = st.file_uploader(
-            "Upload Payroll Inputs",
-            type=["xlsx", "xlsb", "xls", "csv"],
-            key=f"main_file_{st.session_state['uploader_key_1']}",
-            label_visibility="collapsed"
-        )
-        if main_file:
-            st.markdown(f"""
-                <div class="file-status-box">
-                    <span>📄 {main_file.name}</span>
-                    <span>✓ Attached</span>
-                </div>
-            """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown('<span class="input-label">Payroll Masterfile</span>', unsafe_allow_html=True)
-        dr2_file = st.file_uploader(
-            "Upload Payroll Masterfile",
-            type=["xlsx", "xlsb", "xls", "csv"],
-            key=f"dr2_file_{st.session_state['uploader_key_2']}",
-            label_visibility="collapsed"
-        )
-        if dr2_file:
-            st.markdown(f"""
-                <div class="file-status-box">
-                    <span>📄 {dr2_file.name}</span>
-                    <span>✓ Attached</span>
-                </div>
-            """, unsafe_allow_html=True)
-
-    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
-
-    # 2. PASSWORD SECTION
-    st.markdown('<div class="section-title">2. Security & Credentials</div>', unsafe_allow_html=True)
-
-    st.markdown('<span class="input-label">File Password</span>', unsafe_allow_html=True)
-    password = st.text_input(
-        "File Password",
-        value=st.session_state["pwd_value"],
-        type="password",
-        placeholder="Enter file password (leave blank if unencrypted)",
-        label_visibility="collapsed"
-    )
-
-    st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
-
-    # 3. BUTTON ACTION AREA INSIDE CARD
-    btn_col1, btn_col2 = st.columns([3, 1])
-
-    with btn_col1:
-        start_btn = st.button("Run Payroll Validation", type="primary", use_container_width=True)
-
-    with btn_col2:
-        clear_btn = st.button("Reset Form", type="secondary", use_container_width=True, on_click=reset_form)
-
-# --- EXECUTION LOGIC WITH PROGRESS BAR ---
-if start_btn:
-    if not main_file or not dr2_file:
-        st.error("Please upload both Payroll Inputs and Masterfile before proceeding.")
-    else:
-        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
-        
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-
-        try:
-            result_excel = process_validation(main_file, dr2_file, password, progress_bar, status_text)
-            
-            st.success("Validation completed successfully.")
-            
-            st.download_button(
-                label="📥 Download Validated Report (.xlsx)",
-                data=result_excel,
-                file_name="Payroll_Validated_Report.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
-        except Exception as e:
-            progress_bar.empty()
-            status_text.empty()
-            st.error(f"Execution Error: {str(e)}")
-
-# --- FOOTER ---
-st.markdown("""
-    <div class="footer-text">Payroll Team Internal Tool</div>
-""", unsafe_allow_html=True)
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=7860, reload=True)
