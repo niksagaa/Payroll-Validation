@@ -5,105 +5,103 @@ let currentSheetIndex = 0;
 let accumulatedMappings = {};
 let accumulatedIdKeys = {};
 
+const passwordInput = document.getElementById('password') || document.getElementById('passwordInput');
+
+function goToStep(stepNumber) {
+    document.querySelectorAll('.step-panel').forEach(panel => panel.classList.remove('active-panel'));
+    const targetPanel = document.getElementById(`panelStep${stepNumber}`);
+    if (targetPanel) targetPanel.classList.add('active-panel');
+
+    for (let i = 1; i <= 2; i++) {
+        const ind = document.getElementById(`indicatorStep${i}`);
+        if (ind) {
+            ind.classList.remove('active', 'completed');
+            if (i < stepNumber) ind.classList.add('completed');
+            else if (i === stepNumber) ind.classList.add('active');
+        }
+    }
+}
+
 function handleFileSelect(input, containerId, textId) {
     if (input.files && input.files[0]) {
-        document.getElementById(textId).innerText = "📄 " + input.files[0].name;
-        document.getElementById(containerId).style.display = 'block';
-
-        if (input.id === 'payroll_inputs') {
-            fetchSheetNames(input.files[0]);
-        }
+        const textElem = document.getElementById(textId);
+        const containerElem = document.getElementById(containerId);
+        if (textElem) textElem.innerText = "📄 " + input.files[0].name;
+        if (containerElem) containerElem.style.display = 'block';
     }
 }
 
-function checkExistingInputs() {
-    const inputElem = document.getElementById('payroll_inputs');
-    if (inputElem.files && inputElem.files[0] && document.getElementById('sheet_name').options.length <= 1) {
-        fetchSheetNames(inputElem.files[0]);
-    }
-}
-
-function toggleSettings() {
-    const content = document.getElementById('settings_content');
-    content.style.display = content.style.display === 'block' ? 'none' : 'block';
-}
-
-async function fetchSheetNames(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('password', document.getElementById('password').value || '');
-
-    const sheetSelect = document.getElementById('sheet_name');
-    sheetSelect.innerHTML = '<option value="">Loading sheets...</option>';
-
-    try {
-        const res = await fetch('/get-sheets', { method: 'POST', body: formData });
-        if (!res.ok) throw new Error("Failed to read sheets.");
-        const data = await res.json();
-
-        sheetSelect.innerHTML = '';
-
-        if (data.sheet_names && data.sheet_names.length > 0) {
-            allSheetNames = data.sheet_names;
-            currentSheetIndex = 0;
-
-            allSheetNames.forEach((sheet, idx) => {
-                const opt = document.createElement('option');
-                opt.value = sheet;
-                opt.textContent = sheet;
-                if (idx === 0) opt.selected = true;
-                sheetSelect.appendChild(opt);
-            });
-        } else {
-            allSheetNames = ["Sheet1"];
-            sheetSelect.innerHTML = '<option value="Sheet1">Sheet1</option>';
-        }
-    } catch (err) {
-        console.error("Error fetching sheets:", err);
-        allSheetNames = ["Sheet1"];
-        sheetSelect.innerHTML = '<option value="Sheet1">Sheet1</option>';
-    }
-}
-
-async function onSheetChange() {
-    const selectedSheet = document.getElementById('sheet_name').value;
-    const foundIdx = allSheetNames.indexOf(selectedSheet);
-    if (foundIdx !== -1) {
-        currentSheetIndex = foundIdx;
-    }
-    if (isMappingActive) {
-        await triggerAnalyzeMappingPreview(true);
-    }
-}
-
-async function startMappingFlow() {
+async function executeSmartAutoValidation() {
     const inputs = document.getElementById('payroll_inputs').files[0];
     const master = document.getElementById('payroll_masterfile').files[0];
     if (!inputs || !master) {
-        alert("Please upload both Payroll Inputs and Masterfile files.");
+        alert("Please upload both Payroll Inputs and Masterfile first.");
+        return;
+    }
+    await submitFinalValidation(true);
+}
+
+async function startMappingFlowAndAdvance() {
+    const inputs = document.getElementById('payroll_inputs').files[0];
+    const master = document.getElementById('payroll_masterfile').files[0];
+    const password = passwordInput ? passwordInput.value : '';
+
+    if (!inputs || !master) {
+        alert("Please upload both Payroll Inputs and Masterfile in Step 1 first.");
+        return;
+    }
+
+    const formDataCheck = new FormData();
+    formDataCheck.append('file', inputs);
+    formDataCheck.append('password', password);
+
+    try {
+        const checkRes = await fetch('/get-sheets', { method: 'POST', body: formDataCheck });
+        if (!checkRes.ok) {
+            const errData = await checkRes.json().catch(() => ({}));
+            throw new Error(errData.detail || "Mali ang password o hindi mabasa ang file.");
+        }
+        const checkData = await checkRes.json();
+        allSheetNames = (checkData.sheet_names && checkData.sheet_names.length > 0) ? checkData.sheet_names : ["Sheet1"];
+    } catch (err) {
+        alert("Password Error: " + err.message);
         return;
     }
 
     isMappingActive = true;
-    document.getElementById('mappingSectionWrapper').style.display = 'block';
-    document.getElementById('initialBtnGroup').style.display = 'none';
-    document.getElementById('multiTabBtnGroup').style.display = 'flex';
-
+    goToStep(2);
     currentSheetIndex = 0;
     accumulatedMappings = {};
     accumulatedIdKeys = {};
 
-    await triggerAnalyzeMappingPreview(false);
+    await triggerAnalyzeMappingPreview();
 }
 
-async function triggerAnalyzeMappingPreview(isTabSwitch) {
+function renderTabPills() {
+    const container = document.getElementById('tabPillsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    allSheetNames.forEach((sheet, idx) => {
+        const pill = document.createElement('div');
+        pill.className = `tab-pill ${idx === currentSheetIndex ? 'active-tab-pill' : ''}`;
+        pill.textContent = `${idx + 1}. ${sheet}`;
+        pill.onclick = async () => {
+            saveCurrentTabMapping();
+            currentSheetIndex = idx;
+            await triggerAnalyzeMappingPreview();
+        };
+        container.appendChild(pill);
+    });
+}
+
+async function triggerAnalyzeMappingPreview() {
     const inputs = document.getElementById('payroll_inputs').files[0];
     const master = document.getElementById('payroll_masterfile').files[0];
-    const password = document.getElementById('password').value;
-    const currentSheet = allSheetNames[currentSheetIndex] || document.getElementById('sheet_name').value;
-
-    document.getElementById('sheet_name').value = currentSheet;
-    document.getElementById('tabIndicator').innerText = `Tab ${currentSheetIndex + 1} of ${allSheetNames.length}: ${currentSheet}`;
+    const password = passwordInput ? passwordInput.value : '';
+    const currentSheet = allSheetNames[currentSheetIndex] || 'Sheet1';
+    
+    renderTabPills();
 
     const formData = new FormData();
     formData.append('payroll_inputs', inputs);
@@ -112,7 +110,12 @@ async function triggerAnalyzeMappingPreview(isTabSwitch) {
     formData.append('sheet_name', currentSheet);
 
     const empColSelect = document.getElementById('employee_id_col');
-    formData.append('employee_id_col', empColSelect.value);
+    if (empColSelect) {
+        if (accumulatedIdKeys[currentSheet]) {
+            empColSelect.value = accumulatedIdKeys[currentSheet];
+        }
+        formData.append('employee_id_col', empColSelect.value);
+    }
 
     try {
         const res = await fetch('/analyze-mapping', { method: 'POST', body: formData });
@@ -123,16 +126,19 @@ async function triggerAnalyzeMappingPreview(isTabSwitch) {
         const data = await res.json();
         globalDr2Cols = data.dr2_columns;
 
-        empColSelect.innerHTML = '<option value="">-- Auto-detect --</option>';
-        data.main_columns.forEach(col => {
-            const opt = document.createElement('option');
-            opt.value = col;
-            opt.textContent = col;
-            if (col === data.detected_key_main) opt.selected = true;
-            empColSelect.appendChild(opt);
-        });
+        if (empColSelect && !accumulatedIdKeys[currentSheet]) {
+            empColSelect.innerHTML = '<option value="">-- Automatically detected --</option>';
+            data.main_columns.forEach(col => {
+                const opt = document.createElement('option');
+                opt.value = col;
+                opt.textContent = col;
+                if (col === data.detected_key_main) opt.selected = true;
+                empColSelect.appendChild(opt);
+            });
+        }
 
-        renderMappingUI(data.data_cols, data.initial_mapping, data.dr2_columns);
+        const savedMapping = accumulatedMappings[currentSheet] || data.initial_mapping;
+        renderMappingUI(data.data_cols, savedMapping, data.dr2_columns);
     } catch (err) {
         alert("Error: " + err.message);
     }
@@ -140,6 +146,7 @@ async function triggerAnalyzeMappingPreview(isTabSwitch) {
 
 function renderMappingUI(dataCols, initialMapping, dr2Cols) {
     const container = document.getElementById('mappingContainer');
+    if (!container) return;
     container.innerHTML = '';
 
     dataCols.forEach(mCol => {
@@ -167,9 +174,7 @@ function renderMappingUI(dataCols, initialMapping, dr2Cols) {
             const opt = document.createElement('option');
             opt.value = dCol;
             opt.textContent = dCol;
-            if (initialMapping[mCol] === dCol) {
-                opt.selected = true;
-            }
+            if (initialMapping[mCol] === dCol) opt.selected = true;
             selectElem.appendChild(opt);
         });
 
@@ -182,24 +187,23 @@ function renderMappingUI(dataCols, initialMapping, dr2Cols) {
 
 function saveCurrentTabMapping() {
     const mapping = {};
-    const selects = document.querySelectorAll('.mapping-select');
-    selects.forEach(sel => {
+    document.querySelectorAll('.mapping-select').forEach(sel => {
         mapping[sel.dataset.mainCol] = sel.value;
     });
-
     const currentSheet = allSheetNames[currentSheetIndex];
     accumulatedMappings[currentSheet] = mapping;
-    accumulatedIdKeys[currentSheet] = document.getElementById('employee_id_col').value;
+    
+    const empColSelect = document.getElementById('employee_id_col');
+    accumulatedIdKeys[currentSheet] = empColSelect ? empColSelect.value : '';
 }
 
 async function handleNextTab() {
     saveCurrentTabMapping();
     currentSheetIndex++;
-
     if (currentSheetIndex < allSheetNames.length) {
-        await triggerAnalyzeMappingPreview(true);
+        await triggerAnalyzeMappingPreview();
     } else {
-        await submitFinalValidation();
+        await submitFinalValidation(false);
     }
 }
 
@@ -207,18 +211,17 @@ async function skipCurrentTab() {
     const currentSheet = allSheetNames[currentSheetIndex];
     accumulatedMappings[currentSheet] = { "__SKIPPED__": true };
     currentSheetIndex++;
-
     if (currentSheetIndex < allSheetNames.length) {
-        await triggerAnalyzeMappingPreview(true);
+        await triggerAnalyzeMappingPreview();
     } else {
-        await submitFinalValidation();
+        await submitFinalValidation(false);
     }
 }
 
-async function submitFinalValidation() {
+async function submitFinalValidation(isAutoRun = false) {
     const inputs = document.getElementById('payroll_inputs').files[0];
     const master = document.getElementById('payroll_masterfile').files[0];
-    const password = document.getElementById('password').value;
+    const password = passwordInput ? passwordInput.value : '';
 
     const formData = new FormData();
     formData.append('payroll_inputs', inputs);
@@ -227,9 +230,14 @@ async function submitFinalValidation() {
     formData.append('all_mappings_json', JSON.stringify(accumulatedMappings));
     formData.append('all_id_keys_json', JSON.stringify(accumulatedIdKeys));
 
-    document.getElementById('progressWrapper').style.display = 'block';
-    document.getElementById('progressStatus').innerText = 'Generating validation report...';
-    document.getElementById('progressBarFill').style.width = '70%';
+    const progressWrapper = document.getElementById('progressWrapper');
+    const progressStatus = document.getElementById('progressStatus');
+    const progressBarFill = document.getElementById('progressBarFill');
+
+    if (isAutoRun) goToStep(2);
+    if (progressWrapper) progressWrapper.style.display = 'block';
+    if (progressStatus) progressStatus.innerText = 'Generating validated report...';
+    if (progressBarFill) progressBarFill.style.width = '70%';
 
     try {
         const res = await fetch('/validate-mapped', { method: 'POST', body: formData });
@@ -238,8 +246,8 @@ async function submitFinalValidation() {
             throw new Error(errData.detail || "Validation failed.");
         }
 
-        document.getElementById('progressBarFill').style.width = '100%';
-        document.getElementById('progressStatus').innerText = 'Download complete!';
+        if (progressBarFill) progressBarFill.style.width = '100%';
+        if (progressStatus) progressStatus.innerText = 'Report successfully downloaded!';
 
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -252,32 +260,37 @@ async function submitFinalValidation() {
 
         setTimeout(() => { resetForm(); }, 2000);
     } catch (err) {
-        alert("Error during validation: " + err.message);
-        document.getElementById('progressWrapper').style.display = 'none';
+        alert("Validation Error: " + err.message);
+        if (progressWrapper) progressWrapper.style.display = 'none';
+        goToStep(1);
     }
 }
 
 function clearFile(event, inputId, badgeId) {
     event.stopPropagation();
-    document.getElementById(inputId).value = '';
-    document.getElementById(badgeId).style.display = 'none';
-    if (inputId === 'payroll_inputs') {
-        document.getElementById('sheet_name').innerHTML = '<option value="">-- Please upload Payroll Inputs File first --</option>';
-        allSheetNames = [];
-    }
+    const inputElem = document.getElementById(inputId);
+    const badgeElem = document.getElementById(badgeId);
+    if (inputElem) inputElem.value = '';
+    if (badgeElem) badgeElem.style.display = 'none';
+    if (inputId === 'payroll_inputs') allSheetNames = [];
 }
 
 function resetForm() {
-    document.getElementById('payrollForm').reset();
-    document.getElementById('inputs_badge_container').style.display = 'none';
-    document.getElementById('master_badge_container').style.display = 'none';
-    document.getElementById('mappingSectionWrapper').style.display = 'none';
-    document.getElementById('initialBtnGroup').style.display = 'flex';
-    document.getElementById('multiTabBtnGroup').style.display = 'none';
-    document.getElementById('progressWrapper').style.display = 'none';
-    document.getElementById('sheet_name').innerHTML = '<option value="">-- Please upload Payroll Inputs File first --</option>';
+    const formElem = document.getElementById('payrollForm');
+    if (formElem) formElem.reset();
+    
+    const inputBadge = document.getElementById('inputs_badge_container');
+    const masterBadge = document.getElementById('master_badge_container');
+    const progressWrap = document.getElementById('progressWrapper');
+
+    if (inputBadge) inputBadge.style.display = 'none';
+    if (masterBadge) masterBadge.style.display = 'none';
+    if (progressWrap) progressWrap.style.display = 'none';
+    
+    goToStep(1);
     isMappingActive = false;
     currentSheetIndex = 0;
+    allSheetNames = [];
     accumulatedMappings = {};
     accumulatedIdKeys = {};
 }

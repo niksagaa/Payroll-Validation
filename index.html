@@ -1,449 +1,452 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payroll Validation Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-            background-color: #F3F7F5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: #1F2937;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .header-section {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background-color: #E2F1E9;
-            color: #0E7569;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 6px 14px;
-            border-radius: 20px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-
-        .title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #0E7569;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: #5A7B6E;
-            font-weight: 500;
-        }
-
-        .card {
-            background-color: #FFFFFF;
-            border: 1px solid #E1EBE6;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 12px 32px rgba(14, 117, 105, 0.04);
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #0E7569;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .section-divider {
-            height: 1px;
-            background-color: #EEF4F1;
-            margin: 28px 0;
-        }
-
-        .upload-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .upload-field-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #2D4038;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .dropzone {
-            background-color: #FAFDFC;
-            border: 1.5px dashed #B8D8CB;
-            border-radius: 14px;
-            padding: 28px 20px;
-            text-align: center;
-            cursor: pointer;
-            position: relative;
-            min-height: 140px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .dropzone input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .btn-upload-icon {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background-color: #0E7569;
-            color: #FFFFFF;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 9px 18px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            pointer-events: none;
-        }
-
-        .dropzone-subtext {
-            font-size: 11px;
-            font-weight: 600;
-            color: #79968B;
-        }
-
-        .file-badge-container {
-            display: none;
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .file-badge {
-            background-color: #EBF6F1;
-            border: 1px solid #BFE2D2;
-            border-radius: 8px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .file-badge-name {
-            font-size: 11px;
-            font-weight: 700;
-            color: #0E7569;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-        }
-
-        .file-badge-remove {
-            color: #8CAAA0;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            color: #2D4038;
-            margin-bottom: 8px;
-        }
-
-        .custom-input,
-        .custom-select {
-            width: 100%;
-            background-color: #FAFDFC;
-            border: 1.5px solid #D5E3DC;
-            color: #1F2937;
-            padding: 12px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .custom-input:focus,
-        .custom-select:focus {
-            border-color: #0E7569;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 0 3px rgba(14, 117, 105, 0.08);
-        }
-
-        .settings-toggle-btn {
-            background: none;
-            border: none;
-            color: #0E7569;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .settings-content {
-            display: none;
-            background-color: #FAFDFC;
-            border: 1px solid #E1EBE6;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .settings-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .mapping-container {
-            margin-top: 15px;
-            background-color: #FAFDFC;
-            border: 1.5px solid #B8D8CB;
-            border-radius: 12px;
-            padding: 20px;
-            max-height: 320px;
-            overflow-y: auto;
-        }
-
-        .mapping-row {
-            display: grid;
-            grid-template-columns: 1.2fr 0.3fr 1.2fr;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #EEF4F1;
-        }
-
-        .mapping-col-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: #2D4038;
-        }
-
-        .mapping-arrow {
-            text-align: center;
-            color: #0E7569;
-            font-weight: 800;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 14px;
-            margin-top: 32px;
-        }
-
-        .btn-submit {
-            flex: 3;
-            background-color: #0E7569;
-            color: #FFFFFF;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(14, 117, 105, 0.15);
-        }
-
-        .btn-submit:hover {
-            background-color: #0B5C53;
-        }
-
-        .btn-reset {
-            flex: 1;
-            background-color: #FFFFFF;
-            border: 1.5px solid #D5E3DC;
-            color: #5A7B6E;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .progress-wrapper {
-            display: none;
-            margin-top: 24px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 10px;
-            background-color: #E2F1E9;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: #0E7569;
-            transition: width 0.3s ease;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: #F3F7F5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 40px 20px; color: #1F2937; }
+        .container { width: 100%; max-width: 900px; }
+        .header-section { text-align: center; margin-bottom: 24px; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; background-color: #E2F1E9; color: #0E7569; font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-bottom: 12px; text-transform: uppercase; }
+        .title { font-size: 30px; font-weight: 800; color: #0E7569; margin-bottom: 6px; }
+        .subtitle { font-size: 13px; color: #5A7B6E; font-weight: 500; }
+        .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 20px; background: #FFFFFF; padding: 14px 20px; border-radius: 14px; border: 1px solid #E1EBE6; }
+        .wizard-step { font-size: 13px; font-weight: 700; color: #9CA3AF; display: flex; align-items: center; gap: 6px; }
+        .wizard-step.active { color: #0E7569; }
+        .wizard-step.completed { color: #10B981; }
+        .card { background-color: #FFFFFF; border: 1px solid #E1EBE6; border-radius: 20px; padding: 32px 40px; box-shadow: 0 12px 32px rgba(14, 117, 105, 0.04); }
+        .step-panel { display: none; }
+        .step-panel.active-panel { display: block; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .section-title { font-size: 14px; font-weight: 700; color: #0E7569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .section-divider { height: 1px; background-color: #EEF4F1; margin: 24px 0; }
+        .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .upload-field-label { font-size: 13px; font-weight: 700; color: #2D4038; margin-bottom: 8px; display: block; }
+        .dropzone { background-color: #FAFDFC; border: 1.5px dashed #B8D8CB; border-radius: 14px; padding: 28px 20px; text-align: center; cursor: pointer; position: relative; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .dropzone input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .btn-upload-icon { display: inline-flex; align-items: center; gap: 8px; background-color: #0E7569; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 9px 18px; border-radius: 8px; margin-bottom: 8px; pointer-events: none; }
+        .dropzone-subtext { font-size: 11px; font-weight: 600; color: #79968B; }
+        .file-badge-container { display: none; margin-top: 10px; width: 100%; }
+        .file-badge { background-color: #EBF6F1; border: 1px solid #BFE2D2; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+        .file-badge-name { font-size: 11px; font-weight: 700; color: #0E7569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .file-badge-remove { color: #8CAAA0; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; color: #2D4038; margin-bottom: 8px; }
+        .custom-input, .custom-select { width: 100%; background-color: #FAFDFC; border: 1.5px solid #D5E3DC; color: #1F2937; padding: 12px 14px; border-radius: 10px; font-size: 13px; outline: none; }
+        .custom-input:focus, .custom-select:focus { border-color: #0E7569; background-color: #FFFFFF; box-shadow: 0 0 0 3px rgba(14, 117, 105, 0.08); }
+        .smart-banner { background-color: #E2F1E9; border: 1px solid #B8D8CB; color: #0E7569; padding: 12px 16px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .tab-pills-container { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .tab-pill { background-color: #EEF4F1; border: 1px solid #D5E3DC; color: #5A7B6E; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; }
+        .tab-pill:hover { border-color: #0E7569; color: #0E7569; }
+        .tab-pill.active-tab-pill { background-color: #0E7569; color: #FFFFFF; border-color: #0E7569; box-shadow: 0 2px 6px rgba(14, 117, 105, 0.2); }
+        .mapping-container { margin-top: 15px; background-color: #FAFDFC; border: 1.5px solid #B8D8CB; border-radius: 12px; padding: 20px; max-height: 400px; overflow-y: auto; }
+        .mapping-row { display: grid; grid-template-columns: 1fr 30px 1fr; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .mapping-col-name { font-size: 12px; font-weight: 700; color: #2D4038; word-break: break-word; }
+        .mapping-arrow { text-align: center; color: #0E7569; font-weight: bold; }
+        .button-group { display: flex; gap: 14px; margin-top: 32px; }
+        .btn-submit { flex: 2; background-color: #0E7569; color: #FFFFFF; border: none; padding: 14px 20px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(14, 117, 105, 0.15); }
+        .btn-submit:hover { background-color: #0B5C53; }
+        .btn-secondary { flex: 1; background-color: #FFFFFF; border: 1.5px solid #D5E3DC; color: #0E7569; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        #progressWrapper { display: none; margin-top: 20px; text-align: center; }
+        .progress-bar-bg { background-color: #EEF4F1; border-radius: 8px; height: 10px; width: 100%; overflow: hidden; margin-top: 8px; }
+        .progress-bar-fill { background-color: #0E7569; height: 100%; width: 0%; transition: width 0.4s ease; }
     </style>
-    <script src="/static/script.js"></script>
 </head>
-
 <body>
-
     <div class="container">
         <div class="header-section">
             <div class="badge">Payroll Automation Tool</div>
-            <h1 class="title">Payroll Validation System</h1>
+            <h1 class="title">Payroll Validation Portal</h1>
             <p class="subtitle">Automated input-to-masterfile cross-matching and variance check.</p>
         </div>
 
-        <form id="payrollForm" class="card" onsubmit="handleFormSubmit(event)">
-            <!-- 1. UPLOAD SECTION -->
-            <div class="section-header"><span class="section-title">1. Upload Payroll Files</span></div>
-            <div class="upload-grid">
-                <div>
-                    <label class="upload-field-label">Payroll Inputs File</label>
-                    <div class="dropzone">
-                        <input type="file" id="payroll_inputs" required
-                            onchange="handleFileSelect(this, 'inputs_badge_container', 'inputs_filename')">
-                        <div class="btn-upload-icon">Select File</div>
-                        <span class="dropzone-subtext">XLSX, XLSB, CSV</span>
-                        <div class="file-badge-container" id="inputs_badge_container">
-                            <div class="file-badge">
-                                <span class="file-badge-name" id="inputs_filename">file.xlsx</span>
-                                <span class="file-badge-remove"
-                                    onclick="clearFile(event, 'payroll_inputs', 'inputs_badge_container')">✕</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label class="upload-field-label">Payroll Masterfile</label>
-                    <div class="dropzone">
-                        <input type="file" id="payroll_masterfile" required
-                            onchange="handleFileSelect(this, 'master_badge_container', 'master_filename')">
-                        <div class="btn-upload-icon">Select File</div>
-                        <span class="dropzone-subtext">XLSX, XLSB, CSV</span>
-                        <div class="file-badge-container" id="master_badge_container">
-                            <div class="file-badge">
-                                <span class="file-badge-name" id="master_filename">file.xlsx</span>
-                                <span class="file-badge-remove"
-                                    onclick="clearFile(event, 'payroll_masterfile', 'master_badge_container')">✕</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="wizard-steps" id="wizardStepsIndicator">
+            <div class="wizard-step active" id="indicatorStep1">1. Upload Files</div>
+            <div class="wizard-step" id="indicatorStep2">2. Column Alignment & Review</div>
+        </div>
 
-            <!-- 2. TARGET SHEET SELECTION -->
-            <div class="section-divider"></div>
-            <div class="section-header"><span class="section-title">2. Target Sheet Selection</span></div>
-            <div class="form-group">
-                <label class="form-label">Select Sheet / Tab from Input File</label>
-                <select id="sheet_name" class="custom-select" onchange="onSheetChange()">
-                    <option value="">-- Please upload Payroll Inputs File first --</option>
-                </select>
-            </div>
-
-            <!-- 3. SECURITY & CREDENTIALS -->
-            <div class="section-divider"></div>
-            <div class="section-header"><span class="section-title">3. Security & Credentials</span></div>
-            <div class="form-group">
-                <label class="form-label">File Encryption Password</label>
-                <input type="password" id="password" class="custom-input" placeholder="Enter file password if encrypted"
-                    oninput="checkExistingInputs()">
-            </div>
-
-            <!-- 4. ADVANCED SETTINGS (Tab-Specific Primary Key Selector) -->
-            <div class="section-divider"></div>
-            <div class="section-header">
-                <span class="section-title">4. Advanced Settings</span>
-                <button type="button" class="settings-toggle-btn" onclick="toggleSettings()">Toggle Advanced</button>
-            </div>
-
-            <div class="settings-content" id="settings_content">
-                <div class="settings-grid">
+        <form id="payrollForm" class="card" onsubmit="event.preventDefault();">
+            <div class="step-panel active-panel" id="panelStep1">
+                <div class="section-header"><span class="section-title">1. Upload Payroll Files</span></div>
+                <div class="upload-grid">
                     <div>
-                        <label class="form-label">Primary Key Column (Employee ID for current tab)</label>
-                        <select id="employee_id_col" class="custom-select">
-                            <option value="">-- Auto-detect --</option>
-                        </select>
+                        <label class="upload-field-label">Payroll Inputs File</label>
+                        <div class="dropzone">
+                            <input type="file" id="payroll_inputs" accept=".xlsx, .xlsb, .csv" onchange="handleFileSelect(this, 'inputs_badge_container', 'inputs_filename')">
+                            <div class="btn-upload-icon">Browse File</div>
+                            <span class="dropzone-subtext">XLSX, XLSB, CSV</span>
+                            <div class="file-badge-container" id="inputs_badge_container">
+                                <div class="file-badge">
+                                    <span class="file-badge-name" id="inputs_filename">file.xlsx</span>
+                                    <span class="file-badge-remove" onclick="clearFile(event, 'payroll_inputs', 'inputs_badge_container')">✕</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="upload-field-label">Payroll Masterfile</label>
+                        <div class="dropzone">
+                            <input type="file" id="payroll_masterfile" accept=".xlsx, .xlsb, .csv" onchange="handleFileSelect(this, 'master_badge_container', 'master_filename')">
+                            <div class="btn-upload-icon">Browse File</div>
+                            <span class="dropzone-subtext">XLSX, XLSB, CSV</span>
+                            <div class="file-badge-container" id="master_badge_container">
+                                <div class="file-badge">
+                                    <span class="file-badge-name" id="master_filename">file.xlsx</span>
+                                    <span class="file-badge-remove" onclick="clearFile(event, 'payroll_masterfile', 'master_badge_container')">✕</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 5. MAPPING TRAINING & REVIEW -->
-            <div id="mappingSectionWrapper" style="display: none;">
                 <div class="section-divider"></div>
-                <div class="section-header">
-                    <span class="section-title">5. Mapping Training & Review</span>
-                    <span id="tabIndicator" style="font-size:11px; color:#0E7569; font-weight:800;">Tab 1 of X</span>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label">File Encryption Password (Optional)</label>
+                    <input type="password" id="password" class="custom-input" placeholder="Enter password if files are password protected">
                 </div>
+
+                <div style="display: flex; gap: 14px;">
+                    <button type="button" class="btn-submit" onclick="executeSmartAutoValidation()">⚡ 1-Click Auto-Generate Report</button>
+                    <button type="button" class="btn-secondary" onclick="startMappingFlowAndAdvance()">🔍 Review & Map Columns</button>
+                </div>
+            </div>
+
+            <div class="step-panel" id="panelStep2">
+                <div class="section-header">
+                    <span class="section-title">2. Column Alignment & Review (Mapping)</span>
+                </div>
+                
+                <div class="smart-banner">
+                    <span>💡</span>
+                    <div>The system automatically aligned the columns based on the previous format. You can modify them if you need to make adjustments.</div>
+                </div>
+
+                <div class="tab-pills-container" id="tabPillsContainer"></div>
+                
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label">Employee ID / Key Column</label>
+                    <select id="employee_id_col" class="custom-select">
+                        <option value="">-- Automatically detected --</option>
+                    </select>
+                </div>
+
                 <div class="mapping-container" id="mappingContainer"></div>
-            </div>
 
-            <!-- BUTTONS (Initial State) -->
-            <div class="button-group" id="initialBtnGroup">
-                <button type="button" class="btn-submit" id="submitBtn" onclick="startMappingFlow()">Analyze & Review
-                    Mapping</button>
-                <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
-            </div>
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="skipCurrentTab()">Skip Sheet</button>
+                    <button type="button" class="btn-submit" onclick="handleNextTab()">Next Sheet / Finish</button>
+                </div>
 
-            <!-- BUTTONS (Multi-tab Navigation State) -->
-            <div class="button-group" id="multiTabBtnGroup" style="display: none;">
-                <button type="button" class="btn-reset" onclick="skipCurrentTab()" style="flex: 1;">Skip Tab</button>
-                <button type="button" class="btn-submit" id="nextTabBtn" onclick="handleNextTab()" style="flex: 2;">Next
-                    Tab ➔</button>
-            </div>
-
-            <!-- PROGRESS BAR -->
-            <div class="progress-wrapper" id="progressWrapper">
-                <span id="progressStatus"
-                    style="font-size: 12px; font-weight: 700; color: #0E7569;">Processing...</span>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                <div id="progressWrapper">
+                    <div id="progressStatus" style="font-size: 12px; font-weight: 700; color: #0E7569;">Generating validated report...</div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressBarFill"></div>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 
-</body>
+    <script>
+        let isMappingActive = false;
+        let globalDr2Cols = [];
+        let allSheetNames = [];
+        let currentSheetIndex = 0;
+        let accumulatedMappings = {};
+        let accumulatedIdKeys = {};
 
+        const passwordInput = document.getElementById('password') || document.getElementById('passwordInput');
+
+        function goToStep(stepNumber) {
+            document.querySelectorAll('.step-panel').forEach(panel => panel.classList.remove('active-panel'));
+            const targetPanel = document.getElementById(`panelStep${stepNumber}`);
+            if (targetPanel) targetPanel.classList.add('active-panel');
+
+            for (let i = 1; i <= 2; i++) {
+                const ind = document.getElementById(`indicatorStep${i}`);
+                if (ind) {
+                    ind.classList.remove('active', 'completed');
+                    if (i < stepNumber) ind.classList.add('completed');
+                    else if (i === stepNumber) ind.classList.add('active');
+                }
+            }
+        }
+
+        function handleFileSelect(input, containerId, textId) {
+            if (input.files && input.files[0]) {
+                const textElem = document.getElementById(textId);
+                const containerElem = document.getElementById(containerId);
+                if (textElem) textElem.innerText = "📄 " + input.files[0].name;
+                if (containerElem) containerElem.style.display = 'block';
+            }
+        }
+
+        async function executeSmartAutoValidation() {
+            const inputs = document.getElementById('payroll_inputs').files[0];
+            const master = document.getElementById('payroll_masterfile').files[0];
+            if (!inputs || !master) {
+                alert("Please upload both Payroll Inputs and Masterfile first.");
+                return;
+            }
+            await submitFinalValidation(true);
+        }
+
+        async function startMappingFlowAndAdvance() {
+            const inputs = document.getElementById('payroll_inputs').files[0];
+            const master = document.getElementById('payroll_masterfile').files[0];
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!inputs || !master) {
+                alert("Please upload both Payroll Inputs and Masterfile in Step 1 first.");
+                return;
+            }
+
+            const formDataCheck = new FormData();
+            formDataCheck.append('file', inputs);
+            formDataCheck.append('password', password);
+
+            try {
+                const checkRes = await fetch('/get-sheets', { method: 'POST', body: formDataCheck });
+                if (!checkRes.ok) {
+                    const errData = await checkRes.json().catch(() => ({}));
+                    throw new Error(errData.detail || "Incorrect password or file cannot be read.");
+                }
+                const checkData = await checkRes.json();
+                allSheetNames = (checkData.sheet_names && checkData.sheet_names.length > 0) ? checkData.sheet_names : ["Sheet1"];
+            } catch (err) {
+                alert("Password Error: " + err.message);
+                return;
+            }
+
+            isMappingActive = true;
+            goToStep(2);
+            currentSheetIndex = 0;
+            accumulatedMappings = {};
+            accumulatedIdKeys = {};
+
+            await triggerAnalyzeMappingPreview();
+        }
+
+        function renderTabPills() {
+            const container = document.getElementById('tabPillsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            allSheetNames.forEach((sheet, idx) => {
+                const pill = document.createElement('div');
+                pill.className = `tab-pill ${idx === currentSheetIndex ? 'active-tab-pill' : ''}`;
+                pill.textContent = `${idx + 1}. ${sheet}`;
+                pill.onclick = async () => {
+                    saveCurrentTabMapping();
+                    currentSheetIndex = idx;
+                    await triggerAnalyzeMappingPreview();
+                };
+                container.appendChild(pill);
+            });
+        }
+
+        async function triggerAnalyzeMappingPreview() {
+            const inputs = document.getElementById('payroll_inputs').files[0];
+            const master = document.getElementById('payroll_masterfile').files[0];
+            const password = passwordInput ? passwordInput.value : '';
+            const currentSheet = allSheetNames[currentSheetIndex] || 'Sheet1';
+            
+            renderTabPills();
+
+            const formData = new FormData();
+            formData.append('payroll_inputs', inputs);
+            formData.append('payroll_masterfile', master);
+            formData.append('password', password);
+            formData.append('sheet_name', currentSheet);
+
+            const empColSelect = document.getElementById('employee_id_col');
+            if (empColSelect) {
+                if (accumulatedIdKeys[currentSheet]) {
+                    empColSelect.value = accumulatedIdKeys[currentSheet];
+                }
+                formData.append('employee_id_col', empColSelect.value);
+            }
+
+            try {
+                const res = await fetch('/analyze-mapping', { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.detail || "Analysis failed.");
+                }
+                const data = await res.json();
+                globalDr2Cols = data.dr2_columns;
+
+                if (empColSelect && !accumulatedIdKeys[currentSheet]) {
+                    empColSelect.innerHTML = '<option value="">-- Automatically detected --</option>';
+                    data.main_columns.forEach(col => {
+                        const opt = document.createElement('option');
+                        opt.value = col;
+                        opt.textContent = col;
+                        if (col === data.detected_key_main) opt.selected = true;
+                        empColSelect.appendChild(opt);
+                    });
+                }
+
+                const savedMapping = accumulatedMappings[currentSheet] || data.initial_mapping;
+                renderMappingUI(data.data_cols, savedMapping, data.dr2_columns);
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        function renderMappingUI(dataCols, initialMapping, dr2Cols) {
+            const container = document.getElementById('mappingContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            dataCols.forEach(mCol => {
+                const row = document.createElement('div');
+                row.className = 'mapping-row';
+
+                const colNameDiv = document.createElement('div');
+                colNameDiv.className = 'mapping-col-name';
+                colNameDiv.textContent = mCol;
+
+                const arrowDiv = document.createElement('div');
+                arrowDiv.className = 'mapping-arrow';
+                arrowDiv.textContent = '➔';
+
+                const selectElem = document.createElement('select');
+                selectElem.className = 'custom-select mapping-select';
+                selectElem.dataset.mainCol = mCol;
+
+                const skipOpt = document.createElement('option');
+                skipOpt.value = '-- Skip / Do Not Compare --';
+                skipOpt.textContent = '-- Skip / Do Not Compare --';
+                selectElem.appendChild(skipOpt);
+
+                dr2Cols.forEach(dCol => {
+                    const opt = document.createElement('option');
+                    opt.value = dCol;
+                    opt.textContent = dCol;
+                    if (initialMapping[mCol] === dCol) opt.selected = true;
+                    selectElem.appendChild(opt);
+                });
+
+                row.appendChild(colNameDiv);
+                row.appendChild(arrowDiv);
+                row.appendChild(selectElem);
+                container.appendChild(row);
+            });
+        }
+
+        function saveCurrentTabMapping() {
+            const mapping = {};
+            document.querySelectorAll('.mapping-select').forEach(sel => {
+                mapping[sel.dataset.mainCol] = sel.value;
+            });
+            const currentSheet = allSheetNames[currentSheetIndex];
+            accumulatedMappings[currentSheet] = mapping;
+            
+            const empColSelect = document.getElementById('employee_id_col');
+            accumulatedIdKeys[currentSheet] = empColSelect ? empColSelect.value : '';
+        }
+
+        async function handleNextTab() {
+            saveCurrentTabMapping();
+            currentSheetIndex++;
+            if (currentSheetIndex < allSheetNames.length) {
+                await triggerAnalyzeMappingPreview();
+            } else {
+                await submitFinalValidation(false);
+            }
+        }
+
+        async function skipCurrentTab() {
+            const currentSheet = allSheetNames[currentSheetIndex];
+            accumulatedMappings[currentSheet] = { "__SKIPPED__": true };
+            currentSheetIndex++;
+            if (currentSheetIndex < allSheetNames.length) {
+                await triggerAnalyzeMappingPreview();
+            } else {
+                await submitFinalValidation(false);
+            }
+        }
+
+        async function submitFinalValidation(isAutoRun = false) {
+            const inputs = document.getElementById('payroll_inputs').files[0];
+            const master = document.getElementById('payroll_masterfile').files[0];
+            const password = passwordInput ? passwordInput.value : '';
+
+            const formData = new FormData();
+            formData.append('payroll_inputs', inputs);
+            formData.append('payroll_masterfile', master);
+            formData.append('password', password);
+            formData.append('all_mappings_json', JSON.stringify(accumulatedMappings));
+            formData.append('all_id_keys_json', JSON.stringify(accumulatedIdKeys));
+
+            const progressWrapper = document.getElementById('progressWrapper');
+            const progressStatus = document.getElementById('progressStatus');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            if (isAutoRun) goToStep(2);
+            if (progressWrapper) progressWrapper.style.display = 'block';
+            if (progressStatus) progressStatus.innerText = 'Generating validated report...';
+            if (progressBarFill) progressBarFill.style.width = '70%';
+
+            try {
+                const res = await fetch('/validate-mapped', { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.detail || "Validation failed.");
+                }
+
+                if (progressBarFill) progressBarFill.style.width = '100%';
+                if (progressStatus) progressStatus.innerText = 'Report successfully downloaded!';
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "Payroll_Validated_Report.xlsx";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                setTimeout(() => { resetForm(); }, 2000);
+            } catch (err) {
+                alert("Validation Error: " + err.message);
+                if (progressWrapper) progressWrapper.style.display = 'none';
+                goToStep(1);
+            }
+        }
+
+        function clearFile(event, inputId, badgeId) {
+            event.stopPropagation();
+            const inputElem = document.getElementById(inputId);
+            const badgeElem = document.getElementById(badgeId);
+            if (inputElem) inputElem.value = '';
+            if (badgeElem) badgeElem.style.display = 'none';
+            if (inputId === 'payroll_inputs') allSheetNames = [];
+        }
+
+        function resetForm() {
+            const formElem = document.getElementById('payrollForm');
+            if (formElem) formElem.reset();
+            
+            const inputBadge = document.getElementById('inputs_badge_container');
+            const masterBadge = document.getElementById('master_badge_container');
+            const progressWrap = document.getElementById('progressWrapper');
+
+            if (inputBadge) inputBadge.style.display = 'none';
+            if (masterBadge) masterBadge.style.display = 'none';
+            if (progressWrap) progressWrap.style.display = 'none';
+            
+            goToStep(1);
+            isMappingActive = false;
+            currentSheetIndex = 0;
+            allSheetNames = [];
+            accumulatedMappings = {};
+            accumulatedIdKeys = {};
+        }
+    </script>
+</body>
 </html>
