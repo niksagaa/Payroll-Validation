@@ -2,6 +2,7 @@ import io
 import os
 import json
 import sqlite3
+import uvicorn
 import msoffcrypto
 import pandas as pd
 from difflib import SequenceMatcher
@@ -20,8 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Kung gusto mong i-serve ang frontend mula sa static folder, i-uncomment ito:
-# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
@@ -183,5 +182,5 @@ async def api_validate_mapped(
     )
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
